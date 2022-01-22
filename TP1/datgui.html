@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+<html>
+
+	<head>
+		<title>P4x - Exemple basique d'utilisation de dat.gui</title>
+		<meta charset="utf-8">
+	</head>
+
+	<body>
+		<div id="contenu">1</div>
+		<script type="module">
+			import * as dat from './three.js-master/examples/jsm/libs/dat.gui.module.js';
+
+			var parameters = {
+				valeur: 1,
+			};
+
+			var gui = new dat.GUI();
+
+			var demo = gui.addFolder('Demo');
+			var valeur = demo.add( parameters, 'valeur' ).min(0).max(10).step(1).listen();
+			demo.open();
+			valeur.onChange(
+				function(value) 
+				{ 
+					document.getElementById('contenu').textContent = value
+				}
+			);
+		</script>
+	</body>
+
+</html>

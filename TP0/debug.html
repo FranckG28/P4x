@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html> 
+ <head> 
+ <meta charset="utf-8"/>
+ <title>Debogage</title> 
+ <style> 
+ body { margin: 0; } 
+ canvas { width: 100%; height: 100% } 
+ </style> 
+ </head> 
+ <body> 
+ <p id="local">Test</p>
+ <p id="global">Test</p>
+ <script> 
+ valeurGlobale = 0
+ var valeurLocale = 1
+ function update() {
+	document.getElementById("global").textContent = valeur_Globale;
+	document.getElementById("local").textContent = valeurLocale;
+ }
+ 
+ update()
+ </script> 
+ </body> 
+ </html>
