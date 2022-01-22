@@ -100,6 +100,6 @@ git remote -v
 ```
 Pour récupérer les commits ajoutés par vos enseignants sur le dépôt de référence, vous pouvez dorénavant faire :
 ```sh
-git pull upstream master
+git pull upstream main
 ```
-*master* est ici le nom de la **branche** dans laquelle vous travaillez, mais cela, c'est une autre histoire dont on n'a pas forcément besoin pour le moment..
+*main* est ici le nom de la **branche** dans laquelle vous travaillez, mais cela, c'est une autre histoire dont on n'a pas forcément besoin pour le moment..
