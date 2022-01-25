@@ -17,7 +17,7 @@ function init() {
         camera.lookAt(scene.position);
         scene.add(camera);
         
-        renderer = new THREE.WebGLRenderer();
+        renderer = new THREE.WebGLRenderer({antialias: true});
         renderer.setSize(W, H);
         container.appendChild(renderer.domElement);
         
@@ -55,14 +55,16 @@ function init() {
         scene.add(cube2);
 
 
+
+        
         var sphereLightMaterial = new THREE.MeshLambertMaterial( { color: "#FFFFFF"});
         sphereLightMaterial.transparent = true;
-        sphereLightMaterial.opacity = 0.9;
+        sphereLightMaterial.opacity = 0.5;
         var sphereLight = new THREE.Mesh(
                 new THREE.SphereGeometry(0.5,20,20),
                 sphereLightMaterial
         );
-        sphereLight.translateY(8);
+        sphereLight.translateY(9);
         scene.add(sphereLight);
 
         const light = new THREE.PointLight( 0xFFFFFF, 1 );
