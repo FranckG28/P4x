@@ -99,9 +99,9 @@ function init() {
            intensity: light.intensity
         };
 
-        var posX = positionFolder.add(parameters, 'x').min(0).max(20).step(0.1).listen();
-        var posY = positionFolder.add(parameters, 'y').min(0).max(20).step(0.1).listen();
-        var posZ = positionFolder.add(parameters, 'z').min(0).max(20).step(0.1).listen();
+        var posX = positionFolder.add(parameters, 'x').min(-20).max(20).step(0.1).listen();
+        var posY = positionFolder.add(parameters, 'y').min(-20).max(20).step(0.1).listen();
+        var posZ = positionFolder.add(parameters, 'z').min(-20).max(20).step(0.1).listen();
 
         positionFolder.open();
 
