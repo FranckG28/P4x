@@ -17,25 +17,25 @@ function init() {
         
         const lightColor = "#FFFFFF";
 
+        /* RENDU */
         renderer = new THREE.WebGLRenderer({antialias: true});
         renderer.setSize(W, H);
         container.appendChild(renderer.domElement);
 
+        /* SCENE */
         scene = new THREE.Scene();
 
+        /* CAMERA */
         camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 1000);
-
-        const controls = new OrbitControls( camera, renderer.domElement );
-
         camera.position.set(0, 10, 10);
         camera.lookAt(scene.position);
 
-        // controls.update();
-      
-        //scene.add(camera);
+        /* CONTROLES */
+        const controls = new OrbitControls( camera, renderer.domElement );
+       
         
-        
-        
+        /* AJOUT DES OBJETS */
+
         var sphere = new THREE.Mesh(
                 new THREE.SphereGeometry(1,20,20),
                 new THREE.MeshLambertMaterial( { color: "#FFFFFF", })
@@ -70,6 +70,9 @@ function init() {
         scene.add(cube2);
 
 
+
+        /* LUMIERES */
+
         var sphereLight = new THREE.Mesh(
                 new THREE.SphereGeometry(0.5,20,20),
                 new THREE.MeshBasicMaterial( { color: lightColor })
@@ -83,11 +86,12 @@ function init() {
         light.translateY(10);
         scene.add( light );
 
+        /* AXES */
         const axesHelper = new THREE.AxesHelper( 5 );
         scene.add( axesHelper );
 
 
-
+        /* INTERFACE */
         var gui = new dat.GUI();
 
         var lightFolder = gui.addFolder("Light");
@@ -127,7 +131,6 @@ function init() {
                 sphereLight.material.color.set(value);
         });
 
-        
         lightFolder.open();
 
 }
