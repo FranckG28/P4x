@@ -4,6 +4,8 @@ import * as dat from './three.js-master/examples/jsm/libs/dat.gui.module.js';
 
 import { OrbitControls } from './three.js-master/examples/jsm/controls/OrbitControls.js';
 
+import { OBJLoader } from './three.js-master/examples/jsm/loaders/OBJLoader.js';
+
 var W = window.innerWidth;
 var H = window.innerHeight;
 
@@ -11,7 +13,6 @@ const maxLightPos = 100;
 const floorSize = 100;
 const fov = 50;
 const polygons = 42;
-
 
 const makeAngle = function(angle) {
         return angle * (Math.PI/180);
@@ -103,6 +104,26 @@ function init() {
         );
         torusKnot.position.set(-5, 3, 2)
         scene.add( torusKnot );
+
+
+        /* MODELES */
+        const createOBJModel = function(model,x, y, z, scale) {
+                const loader = new OBJLoader();
+                loader.load(
+                        model, 
+                        function(object) {
+                                object.position.set(x, y, z)
+                                object.scale.set(scale, scale, scale)
+                                scene.add(object)
+                        },
+                        function(xhr) {},
+                        function (error) {
+                                console.error(error);
+                        }
+                );
+        }
+
+        createOBJModel('bear.obj', 5, 2, 8, 0.1)
 
 
         /* LUMIERES */
