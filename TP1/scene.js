@@ -8,8 +8,14 @@ var W = window.innerWidth;
 var H = window.innerHeight;
 
 const maxLightPos = 100;
-const floorSize = 300;
+const floorSize = 100;
 const fov = 50;
+const polygons = 42;
+
+
+const makeAngle = function(angle) {
+        return angle * (Math.PI/180);
+}
 
 var container = document.querySelector('#threejsContainer');
 
@@ -29,57 +35,72 @@ function init() {
 
         /* CAMERA */
         camera = new THREE.PerspectiveCamera(fov, W / H, 0.1, 1000);
-        camera.position.set(0, 10, 10);
+        camera.position.set(0, 10, 30);
         camera.lookAt(scene.position);
 
         /* CONTROLES */
         const controls = new OrbitControls( camera, renderer.domElement );
        
-
         /* SOL */
         var floor = new THREE.Mesh(
                 new THREE.PlaneGeometry(floorSize, floorSize,3, 3),
                 new THREE.MeshLambertMaterial( {color: 0x16A34A, side: THREE.DoubleSide})
         )
-        floor.rotateX(90*(Math.PI/180))
+        floor.position.set(0, -0.1, 0)
+        floor.rotateX(makeAngle(90))
         scene.add(floor)
 
         
         /* AJOUT DES OBJETS */
 
         var sphere = new THREE.Mesh(
-                new THREE.SphereGeometry(1,20,20),
+                new THREE.SphereGeometry(1,polygons,polygons),
                 new THREE.MeshLambertMaterial( { color: "#FFFFFF", })
         );
+        sphere.position.set(2, 1, 3)
         scene.add(sphere);
 
         var cube = new THREE.Mesh(
-                new THREE.BoxGeometry(2,2,3, 5, 5, 5),
-                new THREE.MeshLambertMaterial( { color: "#0000FF", })
+                new THREE.BoxGeometry(2,2,3, polygons, polygons, polygons),
+                new THREE.MeshLambertMaterial( { color: "#E11D48", })
         );
-        cube.translateY(5);
-        cube.translateZ(-5);
+        cube.position.set(-1, 1, -3)
         scene.add(cube);
 
 
-
-        var sphere = new THREE.Mesh(
-                new THREE.SphereGeometry(2,10,50),
-                new THREE.MeshLambertMaterial( { color: "#00FF00", })
+        const circle = new THREE.Mesh( 
+                new THREE.CircleGeometry( 5, 32 ), 
+                new THREE.MeshLambertMaterial( { color: "#22C55E" } ) 
         );
-        sphere.translateX(8);
-        sphere.translateY(4);
-        scene.add(sphere);
+        circle.rotateX(makeAngle(-90))
+        circle.position.set(0, 0, 0)
+        scene.add( circle );
 
-        var cube2 = new THREE.Mesh(
-                new THREE.BoxGeometry(4,2,3, 5, 5, 5),
-                new THREE.MeshLambertMaterial( { color: "#FF0000", })
+
+        const treeWeight = 0.3;
+        const treeHeight = 4;
+        var cone = new THREE.Mesh(
+                new THREE.ConeGeometry(treeWeight,treeHeight, polygons),
+                new THREE.MeshLambertMaterial( { color: "#713F12", })
         );
-        cube2.translateY(4);
-        cube2.translateZ(4);
-        cube2.translateX(-9);
-        scene.add(cube2);
+        cone.position.set(8, treeHeight/2, 0)
+        scene.add(cone);
 
+        var ring = new THREE.Mesh(
+                new THREE.TorusGeometry( 1, 0.3, polygons, polygons ),
+                new THREE.MeshLambertMaterial( { color: "#FACC15", })
+        );
+        ring.position.set(8, 2.5, 0)
+        ring.rotateX(makeAngle(90))
+        scene.add(ring);
+
+
+        const torusKnot = new THREE.Mesh( 
+                new THREE.TorusKnotGeometry( 1, 0.2, polygons*2, polygons ),
+                new THREE.MeshLambertMaterial( { color: "#2563EB", }) 
+        );
+        torusKnot.position.set(-5, 3, 2)
+        scene.add( torusKnot );
 
 
         /* LUMIERES */
