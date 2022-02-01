@@ -8,13 +8,15 @@ var W = window.innerWidth;
 var H = window.innerHeight;
 
 const maxLightPos = 100;
+const floorSize = 300;
+const fov = 50;
 
 var container = document.querySelector('#threejsContainer');
 
 var scene, camera, renderer;
 
 function init() {       
-        
+
         const lightColor = "#FFFFFF";
 
         /* RENDU */
@@ -26,13 +28,22 @@ function init() {
         scene = new THREE.Scene();
 
         /* CAMERA */
-        camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 1000);
+        camera = new THREE.PerspectiveCamera(fov, W / H, 0.1, 1000);
         camera.position.set(0, 10, 10);
         camera.lookAt(scene.position);
 
         /* CONTROLES */
         const controls = new OrbitControls( camera, renderer.domElement );
        
+
+        /* SOL */
+        var floor = new THREE.Mesh(
+                new THREE.PlaneGeometry(floorSize, floorSize,3, 3),
+                new THREE.MeshLambertMaterial( {color: 0x16A34A, side: THREE.DoubleSide})
+        )
+        floor.rotateX(90*(Math.PI/180))
+        scene.add(floor)
+
         
         /* AJOUT DES OBJETS */
 
@@ -64,27 +75,32 @@ function init() {
                 new THREE.BoxGeometry(4,2,3, 5, 5, 5),
                 new THREE.MeshLambertMaterial( { color: "#FF0000", })
         );
-        cube2.translateY(-4);
+        cube2.translateY(4);
         cube2.translateZ(4);
-        cube2.translateX(9);
+        cube2.translateX(-9);
         scene.add(cube2);
 
 
 
         /* LUMIERES */
 
+        const light = new THREE.PointLight(lightColor);
+        light.position.set(10, 50, 20)
+        scene.add( light );
+
         var sphereLight = new THREE.Mesh(
                 new THREE.SphereGeometry(0.5,20,20),
                 new THREE.MeshBasicMaterial( { color: lightColor })
         );
-        sphereLight.translateY(9);
         sphereLight.material.transparent = true;
         sphereLight.material.opacity = 0.5;
         scene.add(sphereLight);
 
-        const light = new THREE.PointLight(lightColor);
-        light.translateY(10);
-        scene.add( light );
+        const updateSphereLight = function() {
+                sphereLight.position.copy(light.position);
+        }
+
+        updateSphereLight();
 
         /* AXES */
         const axesHelper = new THREE.AxesHelper( 5 );
@@ -95,13 +111,15 @@ function init() {
         var gui = new dat.GUI();
 
         var lightFolder = gui.addFolder("Light");
+        var camFolder = gui.addFolder("Camera");
        
         var parameters = {
            x: light.position.x,
            y: light.position.y,
            z: light.position.z,
            intensity: light.intensity,
-           color: lightColor
+           color: lightColor,
+           fov: fov
         };
 
         var posX = lightFolder.add(parameters, 'x').min(-maxLightPos).max(maxLightPos).step(0.1).listen();
@@ -110,18 +128,20 @@ function init() {
         var lightIntensity = lightFolder.add(parameters, 'intensity').min(0).max(10).step(0.1).listen();
         var lightColorGUI = lightFolder.addColor(parameters, 'color').listen();
 
+        var fovGUI = camFolder.add(parameters, 'fov').min(10).max(180).step(0.1).listen();
+
 
         posX.onChange(function (value) { 
                 light.position.set(value, light.position.y, light.position.z) 
-                sphereLight.position.set(value, sphereLight.position.y, sphereLight.position.z) 
+                updateSphereLight()
         });
         posY.onChange(function (value) { 
                 light.position.set(light.position.x, value, light.position.z) 
-                sphereLight.position.set(sphereLight.position.x, value, sphereLight.position.z) 
+                updateSphereLight()
         });
         posZ.onChange(function (value) { 
                 light.position.set(light.position.x, light.position.y, value) 
-                sphereLight.position.set(sphereLight.position.x, sphereLight.position.y, value) 
+                updateSphereLight()
         });
         lightIntensity.onChange(function (value) { 
                 light.intensity = value; 
@@ -131,7 +151,13 @@ function init() {
                 sphereLight.material.color.set(value);
         });
 
+        fovGUI.onChange(function(value) {
+                camera.fov = value;
+                camera.updateProjectionMatrix();
+        });
+
         lightFolder.open();
+        camFolder.open();
 
 }
 
