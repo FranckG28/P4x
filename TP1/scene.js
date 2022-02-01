@@ -2,26 +2,39 @@ import * as THREE from './three.js-master/build/three.module.js'
 
 import * as dat from './three.js-master/examples/jsm/libs/dat.gui.module.js';
 
-// import { OrbitControls } from './three.js-master/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from './three.js-master/examples/jsm/controls/OrbitControls.js';
 
 var W = window.innerWidth;
 var H = window.innerHeight;
+
+const maxLightPos = 100;
 
 var container = document.querySelector('#threejsContainer');
 
 var scene, camera, renderer;
 
-function init() {        
-        scene = new THREE.Scene();
+function init() {       
         
-        camera = new THREE.PerspectiveCamera(90, W / H, 0.1, 1000);
-        camera.position.set(0, 10, 10);
-        camera.lookAt(scene.position);
-        scene.add(camera);
-        
+        const lightColor = "#FFFFFF";
+
         renderer = new THREE.WebGLRenderer({antialias: true});
         renderer.setSize(W, H);
         container.appendChild(renderer.domElement);
+
+        scene = new THREE.Scene();
+
+        camera = new THREE.PerspectiveCamera(45, W / H, 0.1, 1000);
+
+        const controls = new OrbitControls( camera, renderer.domElement );
+
+        camera.position.set(0, 10, 10);
+        camera.lookAt(scene.position);
+
+        // controls.update();
+      
+        //scene.add(camera);
+        
+        
         
         var sphere = new THREE.Mesh(
                 new THREE.SphereGeometry(1,20,20),
@@ -57,38 +70,25 @@ function init() {
         scene.add(cube2);
 
 
-
-
-        var sphereLightMaterial = new THREE.MeshLambertMaterial( { color: "#FFFFFF"});
-        sphereLightMaterial.transparent = true;
-        sphereLightMaterial.opacity = 0.5;
         var sphereLight = new THREE.Mesh(
                 new THREE.SphereGeometry(0.5,20,20),
-                sphereLightMaterial
+                new THREE.MeshBasicMaterial( { color: lightColor })
         );
         sphereLight.translateY(9);
+        sphereLight.material.transparent = true;
+        sphereLight.material.opacity = 0.5;
         scene.add(sphereLight);
 
-        const light = new THREE.PointLight( 0xFFFFFF);
+        const light = new THREE.PointLight(lightColor);
         light.translateY(10);
         scene.add( light );
 
-
-
-
         const axesHelper = new THREE.AxesHelper( 5 );
         scene.add( axesHelper );
-		
-        //scene.background = new THREE.Color( 0xff0000 );
-
-
-
 
 
 
         var gui = new dat.GUI();
-
-        var positionFolder = gui.addFolder("Position");
 
         var lightFolder = gui.addFolder("Light");
        
@@ -96,40 +96,46 @@ function init() {
            x: light.position.x,
            y: light.position.y,
            z: light.position.z,
-           intensity: light.intensity
+           intensity: light.intensity,
+           color: lightColor
         };
 
-        var posX = positionFolder.add(parameters, 'x').min(-20).max(20).step(0.1).listen();
-        var posY = positionFolder.add(parameters, 'y').min(-20).max(20).step(0.1).listen();
-        var posZ = positionFolder.add(parameters, 'z').min(-20).max(20).step(0.1).listen();
+        var posX = lightFolder.add(parameters, 'x').min(-maxLightPos).max(maxLightPos).step(0.1).listen();
+        var posY = lightFolder.add(parameters, 'y').min(-maxLightPos).max(maxLightPos).step(0.1).listen();
+        var posZ = lightFolder.add(parameters, 'z').min(-maxLightPos).max(maxLightPos).step(0.1).listen();
+        var lightIntensity = lightFolder.add(parameters, 'intensity').min(0).max(10).step(0.1).listen();
+        var lightColorGUI = lightFolder.addColor(parameters, 'color').listen();
 
-        positionFolder.open();
 
         posX.onChange(function (value) { 
                 light.position.set(value, light.position.y, light.position.z) 
+                sphereLight.position.set(value, sphereLight.position.y, sphereLight.position.z) 
         });
         posY.onChange(function (value) { 
                 light.position.set(light.position.x, value, light.position.z) 
+                sphereLight.position.set(sphereLight.position.x, value, sphereLight.position.z) 
         });
         posZ.onChange(function (value) { 
                 light.position.set(light.position.x, light.position.y, value) 
+                sphereLight.position.set(sphereLight.position.x, sphereLight.position.y, value) 
         });
-
-
-
-        var lightIntensity = lightFolder.add(parameters, 'intensity').min(0).max(10).step(0.1).listen();
         lightIntensity.onChange(function (value) { 
                 light.intensity = value; 
         });
+        lightColorGUI.onChange(function (value) {
+                light.color.set(value);
+                sphereLight.material.color.set(value);
+        });
+
+        
         lightFolder.open();
 
 }
 
-function animate() { //a compléter        
+function animate() { 
         requestAnimationFrame(animate);
         renderer.render(scene, camera);       
 }
-
 
 init();
 animate();
