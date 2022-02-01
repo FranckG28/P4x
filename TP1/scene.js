@@ -4,8 +4,8 @@ import * as dat from './three.js-master/examples/jsm/libs/dat.gui.module.js';
 
 // import { OrbitControls } from './three.js-master/examples/jsm/controls/OrbitControls.js';
 
-var W = 1000;
-var H = 700;
+var W = window.innerWidth;
+var H = window.innerHeight;
 
 var container = document.querySelector('#threejsContainer');
 
