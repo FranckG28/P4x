@@ -60,6 +60,7 @@ function init() {
         sphere.position.set(2, 1, 3)
         scene.add(sphere);
 
+
         var cube = new THREE.Mesh(
                 new THREE.BoxGeometry(2,2,3, polygons, polygons, polygons),
                 new THREE.MeshLambertMaterial( { color: "#E11D48", })
@@ -86,6 +87,7 @@ function init() {
         cone.position.set(8, treeHeight/2, 0)
         scene.add(cone);
 
+
         var ring = new THREE.Mesh(
                 new THREE.TorusGeometry( 1, 0.3, polygons, polygons ),
                 new THREE.MeshLambertMaterial( { color: "#FACC15", })
@@ -109,6 +111,7 @@ function init() {
         light.position.set(10, 50, 20)
         scene.add( light );
 
+        
         var sphereLight = new THREE.Mesh(
                 new THREE.SphereGeometry(0.5,20,20),
                 new THREE.MeshBasicMaterial( { color: lightColor })
@@ -122,6 +125,7 @@ function init() {
         }
 
         updateSphereLight();
+
 
         /* AXES */
         const axesHelper = new THREE.AxesHelper( 5 );
