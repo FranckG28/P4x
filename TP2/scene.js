@@ -14,6 +14,10 @@ const floorSize = 100;
 const fov = 50;
 const polygons = 42;
 
+const loader = new OBJLoader();
+
+const boxColor = "#DC2626";
+
 const makeAngle = function(angle) {
         return angle * (Math.PI/180);
 }
@@ -26,11 +30,6 @@ function init() {
 
         const lightColor = "#FFFFFF";
 
-        /* RENDU */
-        renderer = new THREE.WebGLRenderer({antialias: true});
-        renderer.setSize(W, H);
-        container.appendChild(renderer.domElement);
-
         /* SCENE */
         scene = new THREE.Scene();
 
@@ -38,16 +37,13 @@ function init() {
         camera = new THREE.PerspectiveCamera(fov, W / H, 0.1, 1000);
         camera.position.set(0, 10, 30);
         camera.lookAt(scene.position);
-
-        /* CONTROLES */
-        const controls = new OrbitControls( camera, renderer.domElement );
        
         /* SOL */
         var floor = new THREE.Mesh(
                 new THREE.PlaneGeometry(floorSize, floorSize,3, 3),
                 new THREE.MeshLambertMaterial( {color: 0x16A34A, side: THREE.DoubleSide})
         )
-        floor.position.set(0, -0.1, 0)
+        floor.position.set(0, -0.01, 0)
         floor.rotateX(makeAngle(90))
         scene.add(floor)
 
@@ -107,14 +103,37 @@ function init() {
 
 
         /* MODELES */
-        const createOBJModel = function(model,x, y, z, scale) {
-                const loader = new OBJLoader();
+        const getObjectBox = function(object) {
+                let box3 = new THREE.Box3().setFromObject(object);
+                return box3;
+        }
+
+        const getObjectSize = function(object) {
+                let vector3 = new THREE.Vector3();
+                getObjectBox(object).getSize(vector3);
+                
+                return vector3;
+        }
+
+        const createOBJModel = function(model,x, z, scale) {
                 loader.load(
                         model, 
                         function(object) {
-                                object.position.set(x, y, z)
-                                object.scale.set(scale, scale, scale)
+
+                                // Mise à l'echelle
+                                let size = getObjectSize(object);
+                                let s = (1/ size.y) * scale;
+                                object.scale.set(s, s, s)
+
+                                // Positionnement
+                                let adjustedBox = getObjectBox(object);
+                                object.position.set(x, Math.abs(adjustedBox.min.y), z)
                                 scene.add(object)
+                                
+                                // BoxHelper
+                                let box = new THREE.BoxHelper(object, boxColor);
+                                scene.add(box)
+
                         },
                         function(xhr) {},
                         function (error) {
@@ -123,15 +142,19 @@ function init() {
                 );
         }
 
-        createOBJModel('bear.obj', 5, 2, 8, 0.1)
-
+        createOBJModel('bear.obj', 8, 1
+        , 1)
+        createOBJModel('cow.obj', 4, 4
+        , 1)
+        createOBJModel('teapot.obj', 5, -2
+        , 1)
 
         /* LUMIERES */
-
-        const light = new THREE.PointLight(lightColor);
-        light.position.set(10, 50, 20)
+        const light = new THREE.DirectionalLight( 0xffffff, 1.5 );
+        light.position.x = 80;
+        light.position.y = 100;
+        light.position.z = 80;
         scene.add( light );
-
 
         var sphereLight = new THREE.Mesh(
                 new THREE.SphereGeometry(0.5,20,20),
@@ -204,7 +227,17 @@ function init() {
         lightFolder.open();
         camFolder.open();
 
+        /* RENDU */
+        renderer = new THREE.WebGLRenderer({antialias: true});
+        renderer.setSize(W, H);
+        container.appendChild(renderer.domElement);
+
+        /* CONTROLES */
+        const controls = new OrbitControls( camera, renderer.domElement );
+
+
 }
+
 
 function animate() { 
         requestAnimationFrame(animate);
