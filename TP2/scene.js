@@ -115,20 +115,25 @@ function init() {
                 return vector3;
         }
 
-        const createOBJModel = function(model,x, z, scale) {
+        const createOBJModel = function(model,x, y, z, rX, rY, rZ, scale) {
                 loader.load(
                         model, 
                         function(object) {
 
                                 // Mise à l'echelle
-                                let size = getObjectSize(object);
-                                let s = (1/ size.y) * scale;
+                                let size = getObjectSize(object)
+                                let s = (1/ size.y) * scale
                                 object.scale.set(s, s, s)
 
                                 // Positionnement
                                 let adjustedBox = getObjectBox(object);
-                                object.position.set(x, Math.abs(adjustedBox.min.y), z)
+                                object.position.set(x, Math.abs(adjustedBox.min.y)+y, z)
                                 scene.add(object)
+
+                                // Rotation
+                                object.rotateX(makeAngle(rX));
+                                object.rotateY(makeAngle(rY));
+                                object.rotateZ(makeAngle(rZ));
                                 
                                 // BoxHelper
                                 let box = new THREE.BoxHelper(object, boxColor);
@@ -142,11 +147,11 @@ function init() {
                 );
         }
 
-        createOBJModel('bear.obj', 8, 1
+        createOBJModel('bear.obj', 8,0,1,0, 0, 0
         , 1)
-        createOBJModel('cow.obj', 4, 4
+        createOBJModel('cow.obj', 4, 0, 4,0, 0, 0
         , 1)
-        createOBJModel('teapot.obj', 5, -2
+        createOBJModel('teapot.obj', 5,0, -2,0, 0, 0
         , 1)
 
         /* LUMIERES */
