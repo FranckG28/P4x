@@ -10,7 +10,7 @@ var W = window.innerWidth;
 var H = window.innerHeight;
 
 const maxLightPos = 100;
-const floorSize = 100;
+const floorSize = 200;
 const fov = 50;
 const polygons = 42;
 
@@ -39,14 +39,37 @@ function init() {
         camera.lookAt(scene.position);
        
         /* SOL */
-        var floor = new THREE.Mesh(
-                new THREE.PlaneGeometry(floorSize, floorSize,3, 3),
-                new THREE.MeshLambertMaterial( {color: 0x16A34A, side: THREE.DoubleSide})
-        )
-        floor.position.set(0, -0.01, 0)
-        floor.rotateX(makeAngle(90))
-        scene.add(floor)
 
+        const floorLoader = new THREE.TextureLoader();
+
+        floorLoader.load(
+                // resource URL
+                'moon.png',
+
+                // onLoad callback
+                function ( texture ) {
+                        texture.wrapS = THREE.RepeatWrapping;
+                        texture.wrapT = THREE.RepeatWrapping;
+                        texture.repeat.x = 10;
+                        texture.repeat.y = 10;
+                        let geo = new THREE.CircleGeometry(floorSize,polygons);
+                        let mat = new THREE.MeshLambertMaterial();
+                        mat.map = texture;
+                        mat.side = THREE.DoubleSide;
+                        var floor = new THREE.Mesh(geo, mat);
+                        floor.position.set(0, -0.01, 0)
+                        floor.rotateX(makeAngle(90))
+                        scene.add(floor)
+                },
+
+                // onProgress callback currently not supported
+                undefined,
+
+                // onError callback
+                function ( err ) {
+                        console.error( 'An error happened.' );
+                }
+        );
         
         /* AJOUT DES OBJETS */
 
@@ -64,16 +87,6 @@ function init() {
         );
         cube.position.set(-1, 1, -3)
         scene.add(cube);
-
-
-        const circle = new THREE.Mesh( 
-                new THREE.CircleGeometry( 5, 32 ), 
-                new THREE.MeshLambertMaterial( { color: "#22C55E" } ) 
-        );
-        circle.rotateX(makeAngle(-90))
-        circle.position.set(0, 0, 0)
-        scene.add( circle );
-
 
         const treeWeight = 0.3;
         const treeHeight = 4;
@@ -155,7 +168,7 @@ function init() {
         , 1)
 
         /* LUMIERES */
-        const light = new THREE.DirectionalLight( 0xffffff, 1.5 );
+        const light = new THREE.DirectionalLight( 0xffffff, 1 );
         light.position.x = 80;
         light.position.y = 100;
         light.position.z = 80;
@@ -173,6 +186,36 @@ function init() {
                 sphereLight.position.copy(light.position);
         }
         updateSphereLight();
+
+
+        /* CIEL */
+
+        const skyLoader = new THREE.TextureLoader();
+        skyLoader.load(
+                // resource URL
+                'sky.jpg',
+        
+                // onLoad callback
+                function ( texture ) {
+
+                        var geometry = new THREE.SphereGeometry(500, 60, 40);
+                        var material = new THREE.MeshBasicMaterial();
+                        material.map = texture;
+                        material.side = THREE.BackSide;
+                        var skydome = new THREE.Mesh(geometry, material);
+
+                        scene.add(skydome);
+                        
+                },
+        
+                // onProgress callback currently not supported
+                undefined,
+        
+                // onError callback
+                function ( err ) {
+                        console.error( 'An error happened.' );
+                }
+        );
 
 
         /* AXES */

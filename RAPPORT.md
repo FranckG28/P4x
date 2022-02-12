@@ -41,11 +41,11 @@ const makeAngle = function(angle) {
 }
 ```
 
-Pour terminer avec le 1er TP, j'ai ajouté quelques formes pour me familiariser avec des géométries de bases, mais je n'ai pas passé beaucoup de temps à essayer de modéliser des objets de cette manière car j'ai pensé que ça serait bien plus intéressant de remplir ma scène avec des modèles.
+Pour terminer avec le 1er TP, j'ai ajouté quelques formes pour me familiariser avec des géométries de bases, mais je n'ai pas passé beaucoup plus de temps à essayer de modéliser des objets de cette manière car j'ai pensé que ça serait bien plus intéressant de remplir ma scène avec des modèles.
 
 ![illustration](images/rapport1/7.png)
 
-
+-------------
 ## TP2
 
 Afin de pouvoir créer des objets `.OBJ` facilement dans ma scène, j'ai voulu créer une fonction qui fait tout ce travail automatiquement.
@@ -123,6 +123,41 @@ Grâce à ça, le chargement d'un model `.OBJ` devient aussi simple que ça :
 createOBJModel('bear.obj', 8, 0, 1, 0, 0, 0, 1)
 ```
 
+J'ai longtemps cherché à ajouté un ciel en essayant plusieurs méthodes, avant de finalement partir sur une solution très simple.
+J'ai créé une énorme sphère, avec une image de ciel déssinée uniquement vers l'intérieur. 
 
+J'ai appris à utilisé le `TextureLoader` de Three.JS pour charger la texture du ciel. Son fonctionnement est très similaire à celui du `OBJLoader`.
 
-- ciel
+```js
+const skyLoader = new THREE.TextureLoader();
+    skyLoader.load(
+        // resource URL
+        'sky.jpg',
+
+        // onLoad callback
+        function ( texture ) {
+
+            var geometry = new THREE.SphereGeometry(500, 60, 40);
+            var material = new THREE.MeshBasicMaterial();
+            material.map = texture;
+            material.side = THREE.BackSide;
+            var skydome = new THREE.Mesh(geometry, material);
+
+            scene.add(skydome);
+            
+        },
+
+        // onProgress callback currently not supported
+        undefined,
+
+        // onError callback
+        function ( err ) {
+            console.error( 'An error happened.' );
+        }
+    );
+```
+
+J'en ai alors profité pour egalement ajouter une texture au sol :
+
+![illustration](images/rapport1/10.png)
+
