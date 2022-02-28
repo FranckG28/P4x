@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+    <title>P4x - TD3 - utilisation des textures</title>
+    <meta charset="utf-8">
+  </head>
+
+  <body>
+    <div id="threejsContainer"></div>
+
+    <script type = 'module'>
+    
+import* as THREE from "./three.js-master/build/three.module.js";
+var W = 1000;
+var H = 700;
+
+var container = document.querySelector('#threejsContainer');
+
+//initialisation de la scène Three.js
+var scene = new THREE.Scene();
+var ratio = H/W;
+var sceneExtend = 5;
+var sceneExtendH = ratio * sceneExtend;
+var camera = new THREE.OrthographicCamera(-sceneExtend, sceneExtend, sceneExtendH, -sceneExtendH, 0.1, 1000);
+camera.position.set(0, 0, 10);
+camera.lookAt(scene.position);
+scene.add(camera);
+
+var renderer = new THREE.WebGLRenderer();
+renderer.setSize(W, H);
+container.appendChild(renderer.domElement);
+
+var myVertexShader = `
+  varying vec3 worldPosition;
+  void main() 
+  {
+    vec4 worldPos = modelMatrix * vec4(position, 1.0);  
+    gl_Position = projectionMatrix * viewMatrix * worldPos;
+	worldPosition = worldPos.xyz;
+  }`
+  
+//exemple : on récupère la couleur à afficher depuis le registre uniform de textures
+var myFragmentShader = `
+  varying vec3 worldPosition;
+  uniform sampler2D lenna; //déclaration de l'uniform de texture. Sa valeur sera attribuée depuis le code javascript.
+  void main() 
+  { 
+    vec4 color = texture2D(lenna, worldPosition.xy);
+    gl_FragColor = vec4(color.rgb, 1.0);
+  }`
+var myTexture = new THREE.TextureLoader().load( 'Lenna.png' );
+//testez le comportement de ces lignes et constatez ce qu'il se passe
+//myTexture.wrapS = THREE.RepeatWrapping;
+//myTexture.wrapT = THREE.RepeatWrapping;
+//myTexture.wrapS = THREE.MirroredRepeatWrapping;
+//myTexture.wrapT = THREE.MirroredRepeatWrapping;
+//myTexture.wrapS = THREE.ClampToEdgeWrapping;
+//myTexture.wrapT = THREE.ClampToEdgeWrapping;
+  
+//déclaration du type texture du registre uniform
+var myTextureUniform = { type: "t", value: myTexture };
+
+// on associe la déclaration type/conteneur au nom de la variable uniform
+var myUniforms = { lenna : myTextureUniform };
+
+//construction du matériau et de la sphère
+var sphereMaterialParams = { vertexShader: myVertexShader, fragmentShader: myFragmentShader, uniforms: myUniforms };
+var sphereMaterial = new THREE.ShaderMaterial(sphereMaterialParams);
+var sphereGeometry = new THREE.SphereGeometry(1,20,20);
+var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+scene.add(sphere);
+
+function animate() {
+  requestAnimationFrame(animate);
+  renderer.render(scene, camera);  
+}
+
+animate();
+
+    </script>
+  </body>
+
+</html>
