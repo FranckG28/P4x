@@ -168,22 +168,30 @@ createOBJModel('teapot.obj', 5,0, -2,0, 0, 0
 
 // Vertex shader
 var myVertexShader = `
-  void main() 
-  {
-    vec4 worldPos = modelMatrix * vec4(position, 1.0);  
-    gl_Position = projectionMatrix * viewMatrix * worldPos;
-  }`
-  
-// Pixel shader
-var myFragmentShader = `  
-  void main() 
-  { 
-    gl_FragColor = vec4(0.0, 1.0, 1.0, 1.0);
-  }`
+        void main() 
+        {
+        vec4 worldPos = modelMatrix * vec4(position, 1.0);  
+        gl_Position = projectionMatrix * viewMatrix * worldPos;
+        }`
 
+
+// Pixel shader
+var myFragmentShader = `
+        uniform vec3 rgb;  
+        void main() 
+        { 
+        gl_FragColor = vec4(rgb, 1.0);
+        }`
+
+// conteneur Vector3 du registre uniform
+var myRGBUniform = { type: "v3", value: new THREE.Vector3() };
+
+// on associe la déclaration type/conteneur au nom de la variable uniform "rgb"
+var myUniforms = { rgb : myRGBUniform };
+  
 const shaderSphere = new THREE.Mesh(
         new THREE.SphereGeometry(4, polygons, polygons),
-        new THREE.ShaderMaterial({ vertexShader: myVertexShader, fragmentShader: myFragmentShader })
+        new THREE.ShaderMaterial({ vertexShader: myVertexShader, fragmentShader: myFragmentShader, uniforms: myUniforms })
 );
 shaderSphere.position.set(10, 15, 5)
 scene.add(shaderSphere);
@@ -306,7 +314,23 @@ container.appendChild(renderer.domElement);
 const controls = new OrbitControls( camera, renderer.domElement );
 
 
+/* Variation de couleur de myPixelShader */
+let time = 0;
+let rCoef = 0.3;
+let gCoef = 0.5;
+let bCoef = 0.8;
+
 function animate() { 
+
+        time+= 0.1;
+
+        //on l'assigne au registre uniform déclaré dans le pixel shader
+        shaderSphere.material.uniforms.rgb.value.set(
+                Math.cos(time*rCoef),
+                Math.sin(time*gCoef),
+                Math.cos(time*bCoef)
+        );
+
         requestAnimationFrame(animate);
         renderer.render(scene, camera);       
 }
