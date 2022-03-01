@@ -190,10 +190,10 @@ var myRGBUniform = { type: "v3", value: new THREE.Vector3() };
 var myUniforms = { rgb : myRGBUniform };
   
 const shaderSphere = new THREE.Mesh(
-        new THREE.SphereGeometry(4, polygons, polygons),
+        new THREE.SphereGeometry(1, polygons, polygons),
         new THREE.ShaderMaterial({ vertexShader: myVertexShader, fragmentShader: myFragmentShader, uniforms: myUniforms })
 );
-shaderSphere.position.set(10, 15, 5)
+shaderSphere.position.set(-2, 5, 3)
 scene.add(shaderSphere);
 
 
@@ -253,11 +253,20 @@ const axesHelper = new THREE.AxesHelper( 5 );
 scene.add( axesHelper );
 
 
+/* Variation de couleur de myPixelShader */
+let time = 0;
+let timeIncrement = 0.01;
+let rCoef = 7;
+let gCoef = 5;
+let bCoef = 3;
+
+
 /* INTERFACE */
 var gui = new dat.GUI();
 
 var lightFolder = gui.addFolder("Light");
 var camFolder = gui.addFolder("Camera");
+var shaderFolder = gui.addFolder("Shader");
 
 var parameters = {
         x: light.position.x,
@@ -265,7 +274,8 @@ var parameters = {
         z: light.position.z,
         intensity: light.intensity,
         color: lightColor,
-        fov: fov
+        fov: fov,
+        timeIncrement: timeIncrement
 };
 
 var posX = lightFolder.add(parameters, 'x').min(-maxLightPos).max(maxLightPos).step(0.1).listen();
@@ -275,6 +285,8 @@ var lightIntensity = lightFolder.add(parameters, 'intensity').min(0).max(10).ste
 var lightColorGUI = lightFolder.addColor(parameters, 'color').listen();
 
 var fovGUI = camFolder.add(parameters, 'fov').min(10).max(180).step(0.1).listen();
+
+var timeIncrementGUI = shaderFolder.add(parameters, 'timeIncrement').min(0.01).max(1).step(0.01).listen();
 
 
 posX.onChange(function (value) { 
@@ -302,6 +314,10 @@ fovGUI.onChange(function(value) {
         camera.updateProjectionMatrix();
 });
 
+timeIncrementGUI.onChange(function(value) {
+        timeIncrement = value;
+})
+
 lightFolder.open();
 camFolder.open();
 
@@ -314,21 +330,15 @@ container.appendChild(renderer.domElement);
 const controls = new OrbitControls( camera, renderer.domElement );
 
 
-/* Variation de couleur de myPixelShader */
-let time = 0;
-let rCoef = 0.3;
-let gCoef = 0.5;
-let bCoef = 0.8;
-
 function animate() { 
 
-        time+= 0.1;
+        time+= timeIncrement;
 
         //on l'assigne au registre uniform déclaré dans le pixel shader
         shaderSphere.material.uniforms.rgb.value.set(
-                Math.cos(time*rCoef),
-                Math.sin(time*gCoef),
-                Math.cos(time*bCoef)
+                Math.cos(time*rCoef/100),
+                Math.sin(time*gCoef/100),
+                Math.cos(time*bCoef/100)
         );
 
         requestAnimationFrame(animate);
