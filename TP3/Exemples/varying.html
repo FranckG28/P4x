@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+    <title>P4x - TD3 - utilisation de varying</title>
+    <meta charset="utf-8">
+  </head>
+
+  <body>
+    <div id="threejsContainer"></div>
+    <script type = 'module'>
+    
+import* as THREE from "./three.js-master/build/three.module.js";
+    
+var W = 1000;
+var H = 700;
+
+var container = document.querySelector('#threejsContainer');
+
+//initialisation de la scène Three.js
+var scene = new THREE.Scene();
+var ratio = H/W;
+var sceneExtend = 5;
+var sceneExtendH = ratio * sceneExtend;
+var camera = new THREE.OrthographicCamera(-sceneExtend, sceneExtend, sceneExtendH, -sceneExtendH, 0.1, 1000);
+camera.position.set(0, 0, 10);
+camera.lookAt(scene.position);
+scene.add(camera);
+
+var renderer = new THREE.WebGLRenderer();
+renderer.setSize(W, H);
+container.appendChild(renderer.domElement);
+
+//exemple : utilisation de varying pour transmettre la position globale (world) en x et affichage en tant que couleur
+
+//déclaration du code de shader directement dans le fichier JS
+var myVertexShader = `
+  varying float xPosition; //déclaration de l'interpolateur(varying) dans le vertex shader. il sera interpolé puis passé au pixel shader
+
+  void main() 
+  {
+    vec4 worldPos = modelMatrix * vec4(position, 1.0);  
+    gl_Position = projectionMatrix * viewMatrix * worldPos;
+    xPosition = worldPos.x;
+  }`
+  
+//déclaration du code de shader directement dans le fichier JS
+var myFragmentShader = `
+varying float xPosition; //déclaration de l'interpolateur dans le pixel shader. Le nom et le type de l'interpolateur doit correspondre à celui déclaré dans le vertex shader.
+  void main() 
+  { 
+    float color = fract(abs(xPosition));
+    gl_FragColor = vec4(color, color, color, 1.0); //on affiche la partie fractionnaire de la coordonnée x comme couleur.
+  }
+`
+
+//construction du matériau et de la sphère
+var sphereMaterialParams = { vertexShader: myVertexShader, fragmentShader: myFragmentShader };
+var sphereMaterial = new THREE.ShaderMaterial(sphereMaterialParams);
+
+var sphereGeometry = new THREE.SphereGeometry(1,20,20);
+var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+scene.add(sphere);
+
+var t = 0;
+function animate() {
+  t+=0.01;
+
+  //on varie la position x avec le temps et on observe le rendu
+  var x=2*Math.sin(t);  
+  if(typeof sphere !== 'undefined') //test nécessaire du fait du chargement asynchrone
+    sphere.position.x = x;
+  
+  requestAnimationFrame(animate);
+  renderer.render(scene, camera);
+}
+
+animate();
+
+    </script>
+  </body>
+
+</html>

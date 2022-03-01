@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+
+<html>
+
+  <head>
+    <title>P4x - TD3 - intégration de shaders</title>
+    <meta charset="utf-8">
+  </head>
+
+  <body>
+    <div id="threejsContainer"></div>
+
+    <script type = 'module'>
+    
+import* as THREE from "./three.js-master/build/three.module.js";
+var W = 1000;
+var H = 700;
+
+var container = document.querySelector('#threejsContainer');
+
+//initialisation de la scène Three.js
+var scene = new THREE.Scene();
+var ratio = H/W;
+var sceneExtend = 5;
+var sceneExtendH = ratio * sceneExtend;
+var camera = new THREE.OrthographicCamera(-sceneExtend, sceneExtend, sceneExtendH, -sceneExtendH, 0.1, 1000);
+camera.position.set(0, 0, 10);
+camera.lookAt(scene.position);
+scene.add(camera);
+var 
+renderer = new THREE.WebGLRenderer();
+renderer.setSize(W, H);
+container.appendChild(renderer.domElement);
+
+//déclaration du code de shader directement dans le fichier JS
+var myVertexShader = `
+  void main() 
+  {
+    vec4 worldPos = modelMatrix * vec4(position, 1.0);  
+    gl_Position = projectionMatrix * viewMatrix * worldPos;
+  }`
+  
+//déclaration du code de shader directement dans le fichier JS
+var myFragmentShader = `  
+  void main() 
+  { 
+    gl_FragColor = vec4(0.0, 1.0, 1.0, 1.0);
+  }`
+
+//construction du matériau et de la sphère
+var sphereMaterialParams = { vertexShader: myVertexShader, fragmentShader: myFragmentShader };
+var sphereMaterial = new THREE.ShaderMaterial(sphereMaterialParams);
+var sphereGeometry = new THREE.SphereGeometry(1,20,20);
+var sphere = new THREE.Mesh(sphereGeometry, sphereMaterial);
+scene.add(sphere);
+
+function animate() {
+  requestAnimationFrame(animate);
+  renderer.render(scene, camera);  
+}
+
+animate();
+
+    </script>
+  </body>
+
+</html>
