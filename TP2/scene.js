@@ -1,10 +1,10 @@
-import * as THREE from './three.js-master/build/three.module.js'
+import * as THREE from '../three.js-master/build/three.module.js'
 
-import * as dat from './three.js-master/examples/jsm/libs/dat.gui.module.js';
+import * as dat from '../three.js-master/examples/jsm/libs/dat.gui.module.js';
 
-import { OrbitControls } from './three.js-master/examples/jsm/controls/OrbitControls.js';
+import { OrbitControls } from '../three.js-master/examples/jsm/controls/OrbitControls.js';
 
-import { OBJLoader } from './three.js-master/examples/jsm/loaders/OBJLoader.js';
+import { OBJLoader } from '../three.js-master/examples/jsm/loaders/OBJLoader.js';
 
 var W = window.innerWidth;
 var H = window.innerHeight;
