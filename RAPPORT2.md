@@ -40,3 +40,6 @@ function animate() {
 }
 ```
 
+J'ai ensuite importé la classe `VertexNormalsHelper` afin de visualiser les normales à ma forme. Ces dernières sont correctement orientées, on peut donc passer à la suite.
+
+<img src="images/rapport2/2.png" alt="illustration" width="400"/>
