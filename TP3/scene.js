@@ -166,64 +166,6 @@ createOBJModel('teapot.obj', 5,0, -2,0, 0, 0
 , 1)
 
 
-/* SHADERS */
-
-// Vertex shader
-var myVertexShader = `
-        // interpolateurs(varying) qui seront passés au Fragment Shader
-        varying float xPosition;
-        varying float yPosition;
-        varying float zPosition;
-
-        void main() 
-        {
-                vec4 worldPos = modelMatrix * vec4(position, 1.0);  
-                gl_Position = projectionMatrix * viewMatrix * worldPos;
-                
-                xPosition = normal.x;
-                yPosition = normal.y;
-                zPosition = normal.z;
-        }`
-
-
-// Pixel shader
-var myFragmentShader = `
-        // interpolateurs(varying) passé par le Vertex Shader
-        varying float xPosition;
-        varying float yPosition;
-        varying float zPosition;
-
-        uniform vec3 rgb;  
-        void main() 
-        { 
-                // float r = cos( 2.23*rgb.r / 0.82 * yPosition + 0.3 * zPosition );
-                // float g = sin( 2.23*rgb.g / 0.2 * xPosition + 0.4 * zPosition );
-                // float b = cos( 2.23*rgb.b / 0.47 * xPosition + 0.29 * yPosition );
-
-                float r = xPosition;
-                float g = yPosition;
-                float b = zPosition;
-
-                gl_FragColor = vec4(r, g, b, 1.0);
-        }`
-
-// conteneur Vector3 du registre uniform
-var myRGBUniform = { type: "v3", value: new THREE.Vector3() };
-
-// on associe la déclaration type/conteneur au nom de la variable uniform "rgb"
-var myUniforms = { rgb : myRGBUniform };
-  
-const shaderSphere = new THREE.Mesh(
-        new THREE.SphereGeometry(1, polygons, polygons),
-        new THREE.ShaderMaterial({ vertexShader: myVertexShader, fragmentShader: myFragmentShader, uniforms: myUniforms })
-);
-shaderSphere.position.set(-2, 5, 3)
-scene.add(shaderSphere);
-
-// const helper = new VertexNormalsHelper( shaderSphere, 0.2, 0x00ff00, 1 );
-// scene.add(helper)
-
-
 /* LUMIERES */
 const light = new THREE.DirectionalLight( 0xffffff, 1 );
 light.position.x = 80;
@@ -243,6 +185,56 @@ const updateSphereLight = function() {
         sphereLight.position.copy(light.position);
 }
 updateSphereLight();
+
+
+/* SHADERS */
+
+// Vertex shader
+var myVertexShader = `
+        uniform vec3 lightPos;
+        varying vec3 vNormal;
+        varying vec3 vPosition;
+
+        void main()
+        {
+                vec4 worldPos = modelMatrix * vec4(position, 1.0);
+                gl_Position = projectionMatrix * viewMatrix * worldPos;
+
+                vNormal = (modelMatrix * vec4(normal, 0.0)).xyz;
+                vPosition = worldPos.xyz;
+        }`
+
+
+// Pixel shader
+var myFragmentShader = `
+        varying vec3 vNormal;
+        varying vec3 vPosition;
+        uniform vec3 rgb;
+        uniform vec3 lightPos;
+
+        void main()
+        {
+                vec3 color = rgb * dot(normalize(vNormal), normalize(lightPos - vPosition));
+                gl_FragColor = vec4(color, 1.0);
+        }`
+
+// conteneur Vector3 du registre uniform
+var myRGBUniform = { type: "v3", value: new THREE.Vector3() };
+var myLightPosUniform = { type: "v3", value: light.position};
+
+// on associe la déclaration type/conteneur au nom de la variable uniform "rgb"
+var myUniforms = { rgb : myRGBUniform, lightPos: myLightPosUniform};
+  
+const shaderSphere = new THREE.Mesh(
+        new THREE.SphereGeometry(1, polygons, polygons),
+        new THREE.ShaderMaterial({ vertexShader: myVertexShader, fragmentShader: myFragmentShader, uniforms: myUniforms })
+);
+shaderSphere.position.set(-2, 5, 3)
+scene.add(shaderSphere);
+
+// const helper = new VertexNormalsHelper( shaderSphere, 0.2, 0x00ff00, 1 );
+// scene.add(helper)
+
 
 
 /* CIEL */
@@ -363,9 +355,9 @@ function animate() {
 
         //on l'assigne au registre uniform déclaré dans le pixel shader
         shaderSphere.material.uniforms.rgb.value.set(
-                Math.cos(time*rCoef/100),
-                Math.sin(time*gCoef/100),
-                Math.cos(time*bCoef/100)
+                Math.abs(Math.cos(time*rCoef/100)),
+                Math.abs(Math.sin(time*gCoef/100)),
+                Math.abs(Math.cos(time*bCoef/100))
         );
 
         requestAnimationFrame(animate);

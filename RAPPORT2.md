@@ -47,3 +47,4 @@ J'ai ensuite importé la classe `VertexNormalsHelper` afin de visualiser les nor
 En ajoutant un paramètre `varying` interpolé par le VertexShader et passé au FragmentShader, j'ai pu implémenté une variation de couleur selon la position x, y, et z du pixel. Combiné à la valeur des composants `rgb` qui varient avec le temps selon des fonctions trigonométriques, cela donne des "lignes" dont l'épaisseur et l'espacement varie.
 
 <img src="images/rapport2/2.png" alt="illustration" width="400"/>
+
