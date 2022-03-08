@@ -180,9 +180,9 @@ var myVertexShader = `
                 vec4 worldPos = modelMatrix * vec4(position, 1.0);  
                 gl_Position = projectionMatrix * viewMatrix * worldPos;
                 
-                xPosition = abs(worldPos.x);
-                yPosition = abs(worldPos.y);
-                zPosition = abs(worldPos.z);
+                xPosition = normal.x;
+                yPosition = normal.y;
+                zPosition = normal.z;
         }`
 
 
@@ -196,9 +196,14 @@ var myFragmentShader = `
         uniform vec3 rgb;  
         void main() 
         { 
-                float r = cos( 2.23*rgb.r / 0.82 * yPosition + 0.3 * zPosition );
-                float g = sin( 2.23*rgb.g / 0.2 * xPosition + 0.4 * zPosition );
-                float b = cos( 2.23*rgb.b / 0.47 * xPosition + 0.29 * yPosition );
+                // float r = cos( 2.23*rgb.r / 0.82 * yPosition + 0.3 * zPosition );
+                // float g = sin( 2.23*rgb.g / 0.2 * xPosition + 0.4 * zPosition );
+                // float b = cos( 2.23*rgb.b / 0.47 * xPosition + 0.29 * yPosition );
+
+                float r = xPosition;
+                float g = yPosition;
+                float b = zPosition;
+
                 gl_FragColor = vec4(r, g, b, 1.0);
         }`
 
