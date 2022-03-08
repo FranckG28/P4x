@@ -170,19 +170,36 @@ createOBJModel('teapot.obj', 5,0, -2,0, 0, 0
 
 // Vertex shader
 var myVertexShader = `
+        // interpolateurs(varying) qui seront passés au Fragment Shader
+        varying float xPosition;
+        varying float yPosition;
+        varying float zPosition;
+
         void main() 
         {
-        vec4 worldPos = modelMatrix * vec4(position, 1.0);  
-        gl_Position = projectionMatrix * viewMatrix * worldPos;
+                vec4 worldPos = modelMatrix * vec4(position, 1.0);  
+                gl_Position = projectionMatrix * viewMatrix * worldPos;
+                
+                xPosition = abs(worldPos.x);
+                yPosition = abs(worldPos.y);
+                zPosition = abs(worldPos.z);
         }`
 
 
 // Pixel shader
 var myFragmentShader = `
+        // interpolateurs(varying) passé par le Vertex Shader
+        varying float xPosition;
+        varying float yPosition;
+        varying float zPosition;
+
         uniform vec3 rgb;  
         void main() 
         { 
-        gl_FragColor = vec4(rgb, 1.0);
+                float r = cos( 2.23*rgb.r / 0.82 * yPosition + 0.3 * zPosition );
+                float g = sin( 2.23*rgb.g / 0.2 * xPosition + 0.4 * zPosition );
+                float b = cos( 2.23*rgb.b / 0.47 * xPosition + 0.29 * yPosition );
+                gl_FragColor = vec4(r, g, b, 1.0);
         }`
 
 // conteneur Vector3 du registre uniform
@@ -198,8 +215,8 @@ const shaderSphere = new THREE.Mesh(
 shaderSphere.position.set(-2, 5, 3)
 scene.add(shaderSphere);
 
-const helper = new VertexNormalsHelper( shaderSphere, 0.2, 0x00ff00, 1 );
-scene.add(helper)
+// const helper = new VertexNormalsHelper( shaderSphere, 0.2, 0x00ff00, 1 );
+// scene.add(helper)
 
 
 /* LUMIERES */
