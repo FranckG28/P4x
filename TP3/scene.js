@@ -11,7 +11,7 @@ import { OBJLoader } from '../three.js-master/examples/jsm/loaders/OBJLoader.js'
 var W = window.innerWidth;
 var H = window.innerHeight;
 
-const maxLightPos = 100;
+const maxLightPos = 20;
 const floorSize = 200;
 const fov = 50;
 const polygons = 42;
@@ -238,7 +238,7 @@ var toonFragmentShader = `
 
 
 
-// *************** UNIFORMS ****************
+// *** UNIFORMS ***/
 var myRGBUniform = { type: "v3", value: new THREE.Vector3() };
 var myLightPosUniform = { type: "v3", value: light.position};
 var myLightIntensityUniform = { type: "float", value: light.intensity};
@@ -247,32 +247,40 @@ var myLightColorUniform = { type: "v3", value: light.color};
 // on associe la déclaration type/conteneur au nom de la variable uniform "rgb"
 var myUniforms = { rgb : myRGBUniform, lightPos: myLightPosUniform, lightIntensity: myLightIntensityUniform, lightColor: myLightColorUniform};
   
+/*** Création des shaders ***/
 
-/********** FORMES ***************** */
+const lamberShaderMaterial = new THREE.ShaderMaterial({ vertexShader: lambertVertexShader, fragmentShader: lambertFragmentShader, uniforms: myUniforms });
+
+const toonShaderMaterial = new THREE.ShaderMaterial({ vertexShader: lambertVertexShader, fragmentShader: toonFragmentShader, uniforms: myUniforms });
+
+/*** Création de la géométrie : ***/
+const shaderSphereGeometry = new THREE.SphereGeometry(1, polygons, polygons);
+
+/*** FORMES ***/
 const shaderSphere = new THREE.Mesh(
-        new THREE.SphereGeometry(1, polygons, polygons),
-        new THREE.ShaderMaterial({ vertexShader: lambertVertexShader, fragmentShader: lambertFragmentShader, uniforms: myUniforms })
+        shaderSphereGeometry,
+        lamberShaderMaterial
 );
 shaderSphere.position.set(-2, 5, 3)
 scene.add(shaderSphere);
 
 const shaderSphere2 = new THREE.Mesh(
-        new THREE.SphereGeometry(1, polygons, polygons),
-        new THREE.ShaderMaterial({ vertexShader: lambertVertexShader, fragmentShader: lambertFragmentShader, uniforms: myUniforms })
+        shaderSphereGeometry,
+        lamberShaderMaterial
 );
 shaderSphere2.position.set(5, 2, -5)
 scene.add(shaderSphere2);
 
 const shaderSphere3 = new THREE.Mesh(
-        new THREE.SphereGeometry(1, polygons, polygons),
-        new THREE.ShaderMaterial({ vertexShader: lambertVertexShader, fragmentShader: lambertFragmentShader, uniforms: myUniforms })
+        shaderSphereGeometry,
+        lamberShaderMaterial
 );
 shaderSphere3.position.set(1, 6, 6)
 scene.add(shaderSphere3);
 
 const shaderSphere4 = new THREE.Mesh(
-        new THREE.SphereGeometry(1, polygons, polygons),
-        new THREE.ShaderMaterial({ vertexShader: lambertVertexShader, fragmentShader: toonFragmentShader, uniforms: myUniforms })
+        shaderSphereGeometry,
+        toonShaderMaterial
 );
 shaderSphere4.position.set(-3, 2, -5)
 scene.add(shaderSphere4);
