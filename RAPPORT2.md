@@ -116,3 +116,41 @@ const createOBJModel = function(model, material, x, y, z, rX, rY, rZ, scale)
 ```
 
 <img src="images/rapport2/9.png" alt="illustration" width="400"/>
+
+Prochain objectif : implémenter le phong shader. Il était un peu plus compliqué à mettre en place que les précédents. Il a fallu d'abord calculer le scalaire entre le vecteur représentant la différence entre la position de la caméra et le pixel et la direction de la lumière. 
+Suite à ça, j'ai calculé à la fois la visibilité que devait avoir ce reflet en ce point, et la valeur de ce reflet. Ce dernier résultat est monté à la puissance de l'intensité de la lumière. J'ai multiplié l'intensité de la lumière par `20.0` dans ce calcul, sinon le reflet était bien trop "dilaté" et ne donnait pas le résultat recherché.
+
+Comme pour le lambert shader, la couleur de l'objet est multiplié par l'intensité et la couleur de la lumière.
+
+Et le résultat est l'addition de la couleur multiplié par le scalaire de la direction de la lumière et de la normale, comme pour le lambert shader, et de la valeur du reflet multiplié par la couleur de l'objet ainsi que par l'opacité du reflet.
+
+<img src="images/rapport2/10.png" alt="illustration" width="400"/>
+<img src="images/rapport2/11.png" alt="illustration" width="400"/>
+
+```c
+        varying vec3 vNormal;
+        varying vec3 vPosition;
+
+        uniform vec3 rgb;
+        uniform vec3 cameraPos;
+        uniform vec3 lightPos;
+        uniform vec3 lightColor;
+        uniform float lightIntensity;
+
+        void main()
+        {
+
+                vec3 lightDirection = normalize(lightPos - vPosition);
+                float scal = dot(lightDirection, normalize(vNormal));
+                vec3 toCamera = normalize(cameraPos - vPosition);
+
+                float visibility = dot(toCamera, lightDirection);
+                float specular = pow(dot(toCamera, normalize(vNormal)), (lightIntensity*20.0));
+
+                vec3 color = (rgb*lightIntensity*lightColor);
+                vec3 diffuse = color * scal;
+                vec3 vecSpecular = color * specular * visibility;
+
+                gl_FragColor = vec4(diffuse + vecSpecular, 1.0);
+        }
+```
