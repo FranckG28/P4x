@@ -77,3 +77,35 @@ Dernière chose à faire : rendre le shader sensible à la couleur de la lumièr
         }
 ```
 
+<img src="images/rapport2/7.png" alt="illustration" width="400"/>
+
+Après avoir fait ça, j'ai implémenter pu implémenter le `toon shading` sans difficultés. En partant du shader précédant et en "seuillant" le produit scalaire pour ne lui laisser que 3 valeurs possible, on obtient bien le résultat attendu :
+
+```c
+varying vec3 vNormal;
+        varying vec3 vPosition;
+        uniform vec3 rgb;
+        uniform vec3 lightPos;
+        uniform vec3 lightColor;
+        uniform float lightIntensity;
+
+        void main()
+        {
+
+                float scal = dot(normalize(vNormal), normalize(lightPos - vPosition));
+
+                if (scal < 0.33) {
+                        scal = 0.33;
+                } else if (scal < 0.66) {
+                        scal = 0.66;
+                } else {
+                        scal = 1.0;
+                }
+
+                vec3 color = (rgb*lightIntensity*lightColor) * scal;
+                gl_FragColor = vec4(color, 1.0);
+        }
+```
+
+<img src="images/rapport2/8.png" alt="illustration" width="400"/>
+

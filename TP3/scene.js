@@ -176,6 +176,7 @@ scene.add( light );
 
 /* SHADERS */
 
+/********** LAMBERT *********** */
 // Vertex shader
 var lambertVertexShader = `
         uniform vec3 lightPos;
@@ -207,17 +208,47 @@ var lambertFragmentShader = `
                 gl_FragColor = vec4(color, 1.0);
         }`
 
-// conteneur Vector3 du registre uniform
+/************ TOON ************/
+
+// Pixel shader
+var toonFragmentShader = `
+        varying vec3 vNormal;
+        varying vec3 vPosition;
+        uniform vec3 rgb;
+        uniform vec3 lightPos;
+        uniform vec3 lightColor;
+        uniform float lightIntensity;
+
+        void main()
+        {
+
+                float scal = dot(normalize(vNormal), normalize(lightPos - vPosition));
+
+                if (scal < 0.33) {
+                        scal = 0.33;
+                } else if (scal < 0.66) {
+                        scal = 0.66;
+                } else {
+                        scal = 1.0;
+                }
+
+                vec3 color = (rgb*lightIntensity*lightColor) * scal;
+                gl_FragColor = vec4(color, 1.0);
+        }`
+
+
+
+// *************** UNIFORMS ****************
 var myRGBUniform = { type: "v3", value: new THREE.Vector3() };
 var myLightPosUniform = { type: "v3", value: light.position};
 var myLightIntensityUniform = { type: "float", value: light.intensity};
 var myLightColorUniform = { type: "v3", value: light.color};
 
-
-
 // on associe la déclaration type/conteneur au nom de la variable uniform "rgb"
 var myUniforms = { rgb : myRGBUniform, lightPos: myLightPosUniform, lightIntensity: myLightIntensityUniform, lightColor: myLightColorUniform};
   
+
+/********** FORMES ***************** */
 const shaderSphere = new THREE.Mesh(
         new THREE.SphereGeometry(1, polygons, polygons),
         new THREE.ShaderMaterial({ vertexShader: lambertVertexShader, fragmentShader: lambertFragmentShader, uniforms: myUniforms })
@@ -241,7 +272,7 @@ scene.add(shaderSphere3);
 
 const shaderSphere4 = new THREE.Mesh(
         new THREE.SphereGeometry(1, polygons, polygons),
-        new THREE.ShaderMaterial({ vertexShader: lambertVertexShader, fragmentShader: lambertFragmentShader, uniforms: myUniforms })
+        new THREE.ShaderMaterial({ vertexShader: lambertVertexShader, fragmentShader: toonFragmentShader, uniforms: myUniforms })
 );
 shaderSphere4.position.set(-3, 2, -5)
 scene.add(shaderSphere4);
