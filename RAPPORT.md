@@ -157,7 +157,7 @@ const skyLoader = new THREE.TextureLoader();
     );
 ```
 
-J'en ai alors profité pour egalement ajouter une texture au sol :
+J'en ai alors profité pour ajouter aussi une texture au sol :
 
 ![illustration](images/rapport1/10.png)
 

@@ -168,24 +168,11 @@ createOBJModel('teapot.obj', 5,0, -2,0, 0, 0
 
 /* LUMIERES */
 const light = new THREE.DirectionalLight( 0xffffff, 1 );
-light.position.x = 80;
-light.position.y = 100;
-light.position.z = 80;
+light.position.x = 3;
+light.position.y = 5;
+light.position.z = 4;
+light.intensity = 1.0;
 scene.add( light );
-
-var sphereLight = new THREE.Mesh(
-        new THREE.SphereGeometry(0.5,20,20),
-        new THREE.MeshBasicMaterial( { color: lightColor })
-);
-sphereLight.material.transparent = true;
-sphereLight.material.opacity = 0.5;
-scene.add(sphereLight);
-
-const updateSphereLight = function() {
-        sphereLight.position.copy(light.position);
-}
-updateSphereLight();
-
 
 /* SHADERS */
 
@@ -211,19 +198,25 @@ var myFragmentShader = `
         varying vec3 vPosition;
         uniform vec3 rgb;
         uniform vec3 lightPos;
+        uniform vec3 lightColor;
+        uniform float lightIntensity;
 
         void main()
         {
-                vec3 color = rgb * dot(normalize(vNormal), normalize(lightPos - vPosition));
+                vec3 color = (rgb*lightIntensity*lightColor) * dot(normalize(vNormal), normalize(lightPos - vPosition));
                 gl_FragColor = vec4(color, 1.0);
         }`
 
 // conteneur Vector3 du registre uniform
 var myRGBUniform = { type: "v3", value: new THREE.Vector3() };
 var myLightPosUniform = { type: "v3", value: light.position};
+var myLightIntensityUniform = { type: "float", value: light.intensity};
+var myLightColorUniform = { type: "v3", value: light.color};
+
+
 
 // on associe la déclaration type/conteneur au nom de la variable uniform "rgb"
-var myUniforms = { rgb : myRGBUniform, lightPos: myLightPosUniform};
+var myUniforms = { rgb : myRGBUniform, lightPos: myLightPosUniform, lightIntensity: myLightIntensityUniform, lightColor: myLightColorUniform};
   
 const shaderSphere = new THREE.Mesh(
         new THREE.SphereGeometry(1, polygons, polygons),
@@ -231,6 +224,27 @@ const shaderSphere = new THREE.Mesh(
 );
 shaderSphere.position.set(-2, 5, 3)
 scene.add(shaderSphere);
+
+const shaderSphere2 = new THREE.Mesh(
+        new THREE.SphereGeometry(1, polygons, polygons),
+        new THREE.ShaderMaterial({ vertexShader: myVertexShader, fragmentShader: myFragmentShader, uniforms: myUniforms })
+);
+shaderSphere2.position.set(5, 2, -5)
+scene.add(shaderSphere2);
+
+const shaderSphere3 = new THREE.Mesh(
+        new THREE.SphereGeometry(1, polygons, polygons),
+        new THREE.ShaderMaterial({ vertexShader: myVertexShader, fragmentShader: myFragmentShader, uniforms: myUniforms })
+);
+shaderSphere3.position.set(1, 6, 6)
+scene.add(shaderSphere3);
+
+const shaderSphere4 = new THREE.Mesh(
+        new THREE.SphereGeometry(1, polygons, polygons),
+        new THREE.ShaderMaterial({ vertexShader: myVertexShader, fragmentShader: myFragmentShader, uniforms: myUniforms })
+);
+shaderSphere4.position.set(-3, 2, -5)
+scene.add(shaderSphere4);
 
 // const helper = new VertexNormalsHelper( shaderSphere, 0.2, 0x00ff00, 1 );
 // scene.add(helper)
@@ -310,22 +324,20 @@ var timeIncrementGUI = shaderFolder.add(parameters, 'timeIncrement').min(0.01).m
 
 posX.onChange(function (value) { 
         light.position.set(value, light.position.y, light.position.z) 
-        updateSphereLight()
 });
 posY.onChange(function (value) { 
         light.position.set(light.position.x, value, light.position.z) 
-        updateSphereLight()
 });
 posZ.onChange(function (value) { 
         light.position.set(light.position.x, light.position.y, value) 
-        updateSphereLight()
 });
 lightIntensity.onChange(function (value) { 
         light.intensity = value; 
+        shaderSphere.material.uniforms.lightIntensity.value = value;
+
 });
 lightColorGUI.onChange(function (value) {
         light.color.set(value);
-        sphereLight.material.color.set(value);
 });
 
 fovGUI.onChange(function(value) {
