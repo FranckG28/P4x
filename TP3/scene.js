@@ -184,21 +184,54 @@ var toonFragmentShader = `
         }`
 
 
+/*** PHONG ***/
+
+var phongFragmentShader = `
+        varying vec3 vNormal;
+        varying vec3 vPosition;
+
+        uniform vec3 rgb;
+        uniform vec3 cameraPos;
+        uniform vec3 lightPos;
+        uniform vec3 lightColor;
+        uniform float lightIntensity;
+
+        void main()
+        {
+
+                vec3 lightDirection = normalize(lightPos - vPosition);
+                float scal = dot(lightDirection, normalize(vNormal));
+                vec3 toCamera = normalize(cameraPos - vPosition);
+
+                float visibility = dot(toCamera, lightDirection);
+                float specular = pow(dot(toCamera, normalize(vNormal)), (lightIntensity*20.0));
+
+                vec3 color = (rgb*lightIntensity*lightColor);
+                vec3 diffuse = color * scal;
+                vec3 vecSpecular = color * specular * visibility;
+
+                gl_FragColor = vec4(diffuse + vecSpecular, 1.0);
+        }`
+
 
 // *** UNIFORMS ***/
 var myRGBUniform = { type: "v3", value: new THREE.Vector3() };
 var myLightPosUniform = { type: "v3", value: light.position};
 var myLightIntensityUniform = { type: "float", value: light.intensity};
 var myLightColorUniform = { type: "v3", value: light.color};
+var myCameraPosUniforms = { type: "v3", value: camera.position};
 
 // on associe la déclaration type/conteneur au nom de la variable uniform "rgb"
-var myUniforms = { rgb : myRGBUniform, lightPos: myLightPosUniform, lightIntensity: myLightIntensityUniform, lightColor: myLightColorUniform};
+var myUniforms = { rgb : myRGBUniform, lightPos: myLightPosUniform, lightIntensity: myLightIntensityUniform, lightColor: myLightColorUniform, cameraPos: myCameraPosUniforms};
   
 /*** Création des shaders ***/
 
 const lamberShaderMaterial = new THREE.ShaderMaterial({ vertexShader: lambertVertexShader, fragmentShader: lambertFragmentShader, uniforms: myUniforms });
 
 const toonShaderMaterial = new THREE.ShaderMaterial({ vertexShader: lambertVertexShader, fragmentShader: toonFragmentShader, uniforms: myUniforms });
+
+const phongShaderMaterial = new THREE.ShaderMaterial({ vertexShader: lambertVertexShader, fragmentShader: phongFragmentShader, uniforms: myUniforms });
+
 
 /*** Création de la géométrie : ***/
 const shaderSphereGeometry = new THREE.SphereGeometry(1, polygons, polygons);
@@ -220,7 +253,7 @@ scene.add(shaderSphere2);
 
 const shaderSphere3 = new THREE.Mesh(
         shaderSphereGeometry,
-        lamberShaderMaterial
+        phongShaderMaterial
 );
 shaderSphere3.position.set(1, 6, 6)
 scene.add(shaderSphere3);
@@ -288,9 +321,9 @@ const createOBJModel = function(model, material, x, y, z, rX, rY, rZ, scale) {
 
 createOBJModel('bear.obj', toonShaderMaterial, 8,0,1,0, 0, 0
 , 1)
-createOBJModel('cow.obj', lamberShaderMaterial, 4, 0, 4,0, 0, 0
+createOBJModel('cow.obj', phongShaderMaterial, 4, 0, 4,0, 0, 0
 , 1)
-createOBJModel('teapot.obj', toonShaderMaterial, 5,0, -2,0, 0, 0
+createOBJModel('teapot.obj', lamberShaderMaterial, 5,0, -2,0, 0, 0
 , 1)
 
 
