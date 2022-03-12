@@ -6,7 +6,7 @@ Après avoir ajouté une sphère et intégré un shader sur le modèle de l'exem
 
 Le premier shader que j'ai implémenté est une variante de celui présenté dans l'exemple `uniforms.html`. Comme ce dernier, celui ci fait aussi varier la couleur de l'objet, mais cette fois ci de manière fluide, sans qu'il n'y ai jamais de "saut" soudain de couleur. 
 
-Dans l'exemple le saut de couleur qui survient est lié à l'utilisation de la fonction `fract`. Cette dernière retourne la partie décimale d'un nombre. Ainsi, dès que les valeurs incrémentés franchissait un nouvel entier, la composante de couleur en question passait soudainement de 0.99 à 0.00.
+Dans l'exemple le saut de couleur qui survient est lié à l'utilisation de la fonction `fract`. Cette dernière retourne la partie décimale d'un nombre. Ainsi, dès que les valeurs incrémentés franchissait un nouvel entier, la composante de couleur en question passait soudainement de `0.99` à `0.00`.
 
 Pour remédier à cela, je me suis inspiré de ce que nous avions déjà vu sur les shaders en `S4x`. En utilisant des fonctions trigonométriques `sinus` et `cosinus`, les valeurs sont interpolées entre 0 et 1, et ce sans jamais de saut brutal. Ainsi, les couleurs varient en permanance sans "saut" :
 
@@ -154,3 +154,4 @@ Et le résultat est l'addition de la couleur multiplié par le scalaire de la di
                 gl_FragColor = vec4(diffuse + vecSpecular, 1.0);
         }
 ```
+
