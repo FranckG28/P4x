@@ -113,59 +113,6 @@ torusKnot.position.set(-5, 3, 2)
 scene.add( torusKnot );
 
 
-/* MODELES */
-const getObjectBox = function(object) {
-        let box3 = new THREE.Box3().setFromObject(object);
-        return box3;
-}
-
-const getObjectSize = function(object) {
-        let vector3 = new THREE.Vector3();
-        getObjectBox(object).getSize(vector3);
-        
-        return vector3;
-}
-
-const createOBJModel = function(model,x, y, z, rX, rY, rZ, scale) {
-        loader.load(
-                model, 
-                function(object) {
-
-                        // Mise à l'echelle
-                        let size = getObjectSize(object)
-                        let s = (1/ size.y) * scale
-                        object.scale.set(s, s, s)
-
-                        // Positionnement
-                        let adjustedBox = getObjectBox(object);
-                        object.position.set(x, Math.abs(adjustedBox.min.y)+y, z)
-                        scene.add(object)
-
-                        // Rotation
-                        object.rotateX(makeAngle(rX));
-                        object.rotateY(makeAngle(rY));
-                        object.rotateZ(makeAngle(rZ));
-                        
-                        // BoxHelper
-                        let box = new THREE.BoxHelper(object, boxColor);
-                        scene.add(box)
-
-                },
-                function(xhr) {},
-                function (error) {
-                        console.error(error);
-                }
-        );
-}
-
-createOBJModel('bear.obj', 8,0,1,0, 0, 0
-, 1)
-createOBJModel('cow.obj', 4, 0, 4,0, 0, 0
-, 1)
-createOBJModel('teapot.obj', 5,0, -2,0, 0, 0
-, 1)
-
-
 /* LUMIERES */
 const light = new THREE.DirectionalLight( 0xffffff, 1 );
 light.position.x = 3;
@@ -288,6 +235,63 @@ scene.add(shaderSphere4);
 // const helper = new VertexNormalsHelper( shaderSphere, 0.2, 0x00ff00, 1 );
 // scene.add(helper)
 
+
+/* MODELES */
+const getObjectBox = function(object) {
+        let box3 = new THREE.Box3().setFromObject(object);
+        return box3;
+}
+
+const getObjectSize = function(object) {
+        let vector3 = new THREE.Vector3();
+        getObjectBox(object).getSize(vector3);
+        
+        return vector3;
+}
+
+const createOBJModel = function(model, material, x, y, z, rX, rY, rZ, scale) {
+        loader.load(
+                model, 
+                function(object) {
+
+                        // Mise à l'echelle
+                        let size = getObjectSize(object)
+                        let s = (1/ size.y) * scale
+                        object.scale.set(s, s, s)
+
+                        // Positionnement
+                        let adjustedBox = getObjectBox(object);
+                        object.position.set(x, Math.abs(adjustedBox.min.y)+y, z)
+                        scene.add(object)
+
+                        // Rotation
+                        object.rotateX(makeAngle(rX));
+                        object.rotateY(makeAngle(rY));
+                        object.rotateZ(makeAngle(rZ));
+
+                        // Material
+                        object.traverse(function(child){
+                                if (child instanceof THREE.Mesh) { child.material = material; }
+                       })
+                        
+                        // BoxHelper
+                        let box = new THREE.BoxHelper(object, boxColor);
+                        scene.add(box)
+
+                },
+                function(xhr) {},
+                function (error) {
+                        console.error(error);
+                }
+        );
+}
+
+createOBJModel('bear.obj', toonShaderMaterial, 8,0,1,0, 0, 0
+, 1)
+createOBJModel('cow.obj', lamberShaderMaterial, 4, 0, 4,0, 0, 0
+, 1)
+createOBJModel('teapot.obj', toonShaderMaterial, 5,0, -2,0, 0, 0
+, 1)
 
 
 /* CIEL */

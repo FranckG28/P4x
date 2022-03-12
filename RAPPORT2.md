@@ -109,3 +109,10 @@ varying vec3 vNormal;
 
 <img src="images/rapport2/8.png" alt="illustration" width="400"/>
 
+J'ai ensuite essayé d'ajouter ces shaders aux modeles `obj`. Cela s'est avéré plus compliqué que prévu, car alors qu'auparavant on appliquait le shader sur un seul Mesh, un model `.obj` est composé de plusieurs Mesh. Il a donc fallu trouver un moyen d'appliquer ce shader material à tout les mesh qui composent l'objet. Après quelques recherches en ligne et l'aide de mes camarades, j'ai réussi à appliquer mes shaders aux modèles. J'ai donc enrichi ma fonction d'ajout d'un modèle OBJ d'un argument `material`
+
+```js
+const createOBJModel = function(model, material, x, y, z, rX, rY, rZ, scale)
+```
+
+<img src="images/rapport2/9.png" alt="illustration" width="400"/>
