@@ -62,7 +62,7 @@ Je n'ai d'abord pas réussi à transmettre correctement l'intensité de la lumi�
 
 Dernière chose à faire : rendre le shader sensible à la couleur de la lumière. C'est chose faite en moins d'une minute en ajoutant une nouvelle `uniform` de la couleur de la lumière que je multiplie au résultat. Voici le code final du pixel shader de mon éclairage Lambert  :
 
-```c
+```glsl
         varying vec3 vNormal;
         varying vec3 vPosition;
         uniform vec3 rgb;
@@ -81,7 +81,7 @@ Dernière chose à faire : rendre le shader sensible à la couleur de la lumièr
 
 Après avoir fait ça, j'ai implémenter pu implémenter le `toon shading` sans difficultés. En partant du shader précédant et en "seuillant" le produit scalaire pour ne lui laisser que 3 valeurs possible, on obtient bien le résultat attendu :
 
-```c
+```glsl
 varying vec3 vNormal;
         varying vec3 vPosition;
         uniform vec3 rgb;
@@ -127,7 +127,7 @@ Et le résultat est l'addition de la couleur multiplié par le scalaire de la di
 <img src="images/rapport2/10.png" alt="illustration" width="400"/>
 <img src="images/rapport2/11.png" alt="illustration" width="400"/>
 
-```c
+```glsl
         varying vec3 vNormal;
         varying vec3 vPosition;
 
