@@ -177,7 +177,7 @@ scene.add( light );
 /* SHADERS */
 
 // Vertex shader
-var myVertexShader = `
+var lambertVertexShader = `
         uniform vec3 lightPos;
         varying vec3 vNormal;
         varying vec3 vPosition;
@@ -193,7 +193,7 @@ var myVertexShader = `
 
 
 // Pixel shader
-var myFragmentShader = `
+var lambertFragmentShader = `
         varying vec3 vNormal;
         varying vec3 vPosition;
         uniform vec3 rgb;
@@ -220,28 +220,28 @@ var myUniforms = { rgb : myRGBUniform, lightPos: myLightPosUniform, lightIntensi
   
 const shaderSphere = new THREE.Mesh(
         new THREE.SphereGeometry(1, polygons, polygons),
-        new THREE.ShaderMaterial({ vertexShader: myVertexShader, fragmentShader: myFragmentShader, uniforms: myUniforms })
+        new THREE.ShaderMaterial({ vertexShader: lambertVertexShader, fragmentShader: lambertFragmentShader, uniforms: myUniforms })
 );
 shaderSphere.position.set(-2, 5, 3)
 scene.add(shaderSphere);
 
 const shaderSphere2 = new THREE.Mesh(
         new THREE.SphereGeometry(1, polygons, polygons),
-        new THREE.ShaderMaterial({ vertexShader: myVertexShader, fragmentShader: myFragmentShader, uniforms: myUniforms })
+        new THREE.ShaderMaterial({ vertexShader: lambertVertexShader, fragmentShader: lambertFragmentShader, uniforms: myUniforms })
 );
 shaderSphere2.position.set(5, 2, -5)
 scene.add(shaderSphere2);
 
 const shaderSphere3 = new THREE.Mesh(
         new THREE.SphereGeometry(1, polygons, polygons),
-        new THREE.ShaderMaterial({ vertexShader: myVertexShader, fragmentShader: myFragmentShader, uniforms: myUniforms })
+        new THREE.ShaderMaterial({ vertexShader: lambertVertexShader, fragmentShader: lambertFragmentShader, uniforms: myUniforms })
 );
 shaderSphere3.position.set(1, 6, 6)
 scene.add(shaderSphere3);
 
 const shaderSphere4 = new THREE.Mesh(
         new THREE.SphereGeometry(1, polygons, polygons),
-        new THREE.ShaderMaterial({ vertexShader: myVertexShader, fragmentShader: myFragmentShader, uniforms: myUniforms })
+        new THREE.ShaderMaterial({ vertexShader: lambertVertexShader, fragmentShader: lambertFragmentShader, uniforms: myUniforms })
 );
 shaderSphere4.position.set(-3, 2, -5)
 scene.add(shaderSphere4);

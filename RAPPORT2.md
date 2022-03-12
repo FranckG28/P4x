@@ -76,3 +76,4 @@ Dernière chose à faire : rendre le shader sensible à la couleur de la lumièr
                 gl_FragColor = vec4(color, 1.0);
         }
 ```
+
