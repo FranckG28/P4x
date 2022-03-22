@@ -6,191 +6,173 @@ import { OrbitControls } from '../three.js-master/examples/jsm/controls/OrbitCon
 
 import OBJTool from './objTools.js';
 
+/************** VARIABLES *****************/
+
+// Instances globales
+let physicsWorld, scene, camera, renderer, clock, controls;
+
+/************ MOTEUR PHYSIQUE *************/
+
+ //Ammojs Initialization
+ Ammo().then( start )
+            
+function setupPhysicsWorld(){
+
+        let collisionConfiguration  = new Ammo.btDefaultCollisionConfiguration(),
+                dispatcher              = new Ammo.btCollisionDispatcher(collisionConfiguration),
+                overlappingPairCache    = new Ammo.btDbvtBroadphase(),
+                solver                  = new Ammo.btSequentialImpulseConstraintSolver();
+
+        physicsWorld           = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+        physicsWorld.setGravity(new Ammo.btVector3(0, -9,87, 0));
+
+}
+
+function start(){
+
+        setupPhysicsWorld();
+
+        setupGraphicWorld();
+
+        animate();
+}
 
 /************ SCENE THREE JS **************/
 
-var W = window.innerWidth;
-var H = window.innerHeight;
+function setupGraphicWorld() {
+        const floorSize = 200;
+        const fov = 50;
+        const polygons = 42;
+        const lightColor = 0xffffff;
 
-const maxLightPos = 20;
-const floorSize = 200;
-const fov = 50;
-const polygons = 42;
-const mass = 150;
+        var container = document.querySelector('#threejsContainer');
 
-var container = document.querySelector('#threejsContainer');
+        /* Chargement des classes */
+        const objTool = new OBJTool();
+        const textureLoader = new THREE.TextureLoader();
 
-var scene, camera, renderer;
+        /* Rendu */
+        renderer = new THREE.WebGLRenderer({antialias: true});
+        renderer.shadowMap.enabled = true;
+        renderer.setSize(window.innerWidth, window.innerWidth);
+        container.appendChild(renderer.domElement);
 
-const lightColor = "#FFFFFF";
+        /* CLOCK */
+        clock = new THREE.Clock();
 
-/* Chargement des classes */
-const objTool = new OBJTool();
-const textureLoader = new THREE.TextureLoader();
+        /* SCENE */
+        scene = new THREE.Scene();
 
-/* SCENE */
-scene = new THREE.Scene();
+        /* CAMERA */
+        camera = new THREE.PerspectiveCamera(fov, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.set(0, 10, 30);
+        camera.lookAt(scene.position);
 
-/* CAMERA */
-camera = new THREE.PerspectiveCamera(fov, W / H, 0.1, 1000);
-camera.position.set(0, 10, 30);
-camera.lookAt(scene.position);
+        /* CONTROLES */
+        controls = new OrbitControls( camera, renderer.domElement );
 
-/* LUMIERES */
-const light = new THREE.DirectionalLight( 0xffffff, 1 );
-light.castShadow = true;
-light.position.x = 3;
-light.position.y = 5;
-light.position.z = 4;
-light.intensity = 1.0;
-scene.add( light );
+        /* LUMIERES */
+        //Add hemisphere light
+        let hemiLight = new THREE.HemisphereLight( 0xffffff, 0xffffff, 0.1 );
+        hemiLight.color.setHSL( 0.6, 0.6, 0.6 );
+        hemiLight.groundColor.setHSL( 0.1, 1, 0.4 );
+        hemiLight.position.set( 0, 50, 0 );
+        scene.add( hemiLight );
 
-/* CIEL */
+        //Add directional light
+        let dirLight = new THREE.DirectionalLight( 0xffffff , 1);
+        dirLight.color.setHSL( 0.1, 1, 0.95 );
+        dirLight.position.set( -1, 1.75, 1 );
+        dirLight.position.multiplyScalar( 100 );
+        scene.add( dirLight );
 
-const skyLoader = new THREE.TextureLoader();
-skyLoader.load(
-        // resource URL
-        'sky.jpg',
+        dirLight.castShadow = true;
 
-        // onLoad callback
-        function ( texture ) {
+        dirLight.shadow.mapSize.width = 2048;
+        dirLight.shadow.mapSize.height = 2048;
 
-                var geometry = new THREE.SphereGeometry(500, 60, 40);
-                var material = new THREE.MeshBasicMaterial();
-                material.map = texture;
-                material.side = THREE.BackSide;
-                var skydome = new THREE.Mesh(geometry, material);
+        let d = 50;
 
-                scene.add(skydome);
-                
-        },
+        dirLight.shadow.camera.left = -d;
+        dirLight.shadow.camera.right = d;
+        dirLight.shadow.camera.top = d;
+        dirLight.shadow.camera.bottom = -d;
 
-        // onProgress callback currently not supported
-        undefined,
+        dirLight.shadow.camera.far = 13500;
 
-        // onError callback
-        function ( err ) {
-                console.error( 'An error happened.' );
-        }
-);
+        /* CIEL */
 
+        const skyLoader = new THREE.TextureLoader();
+        skyLoader.load(
+                // resource URL
+                'sky.jpg',
 
+                // onLoad callback
+                function ( texture ) {
 
+                        var geometry = new THREE.SphereGeometry(500, 60, 40);
+                        var material = new THREE.MeshBasicMaterial();
+                        material.map = texture;
+                        material.side = THREE.BackSide;
+                        var skydome = new THREE.Mesh(geometry, material);
 
-/************ AMMO JS **************/
+                        scene.add(skydome);
+                        
+                },
 
-const phongMaterial = new THREE.MeshPhongMaterial()
-const normalMaterial = new THREE.MeshNormalMaterial()
+                // onProgress callback currently not supported
+                undefined,
 
-/* SOL */
-textureLoader.load(
-        // resource URL
-        'moon.png',
+                // onError callback
+                function ( err ) {
+                        console.error( 'An error happened.' );
+                }
+        );
 
-        // onLoad callback
-        function ( texture ) {
-                texture.wrapS = THREE.RepeatWrapping;
-                texture.wrapT = THREE.RepeatWrapping;
-                texture.repeat.x = 10;
-                texture.repeat.y = 10;
-                let geo = new THREE.CircleGeometry(floorSize,polygons);
-                let mat = new THREE.MeshPhongMaterial();
-                mat.map = texture;
-                mat.side = THREE.DoubleSide;
-                var floor = new THREE.Mesh(geo, mat);
-                floor.position.set(0, -0.01, 0)
-                floor.rotateX(objTool.makeAngle(90))
-                floor.receiveShadow = true;
-                scene.add(floor)
-        },
+        /* SOL */
+        textureLoader.load(
+                // resource URL
+                'moon.png',
 
-        // onProgress callback currently not supported
-        undefined,
+                // onLoad callback
+                function ( texture ) {
+                        texture.wrapS = THREE.RepeatWrapping;
+                        texture.wrapT = THREE.RepeatWrapping;
+                        texture.repeat.x = 10;
+                        texture.repeat.y = 10;
+                        let geo = new THREE.CircleGeometry(floorSize,polygons);
+                        let mat = new THREE.MeshPhongMaterial();
+                        mat.map = texture;
+                        mat.side = THREE.DoubleSide;
+                        var floor = new THREE.Mesh(geo, mat);
+                        floor.position.set(0, -0.01, 0)
+                        floor.rotateX(objTool.makeAngle(90))
+                        floor.receiveShadow = true;
+                        scene.add(floor)
+                },
 
-        // onError callback
-        function ( err ) {
-                console.error( 'An error happened.' );
-        }
-);
+                // onProgress callback currently not supported
+                undefined,
 
-
-
-
-/************ CREATION DU VEHICULE *************/
-
-
-
-
-/************ INTERFACE ************/
-var gui = new dat.GUI();
-
-var lightFolder = gui.addFolder("Light");
-var camFolder = gui.addFolder("Camera");
-
-var parameters = {
-        x: light.position.x,
-        y: light.position.y,
-        z: light.position.z,
-        intensity: light.intensity,
-        color: lightColor,
-        fov: fov,
-};
-
-var posX = lightFolder.add(parameters, 'x').min(-maxLightPos).max(maxLightPos).step(0.1).listen();
-var posY = lightFolder.add(parameters, 'y').min(-maxLightPos).max(maxLightPos).step(0.1).listen();
-var posZ = lightFolder.add(parameters, 'z').min(-maxLightPos).max(maxLightPos).step(0.1).listen();
-var lightIntensity = lightFolder.add(parameters, 'intensity').min(0).max(10).step(0.1).listen();
-var lightColorGUI = lightFolder.addColor(parameters, 'color').listen();
-
-var fovGUI = camFolder.add(parameters, 'fov').min(10).max(180).step(0.1).listen();
-
-
-posX.onChange(function (value) { 
-        light.position.set(value, light.position.y, light.position.z) 
-});
-posY.onChange(function (value) { 
-        light.position.set(light.position.x, value, light.position.z) 
-});
-posZ.onChange(function (value) { 
-        light.position.set(light.position.x, light.position.y, value) 
-});
-lightIntensity.onChange(function (value) { 
-        light.intensity = value; 
-        shaderSphere.material.uniforms.lightIntensity.value = value;
-
-});
-lightColorGUI.onChange(function (value) {
-        light.color.set(value);
-});
-
-fovGUI.onChange(function(value) {
-        camera.fov = value;
-        camera.updateProjectionMatrix();
-});
-
-lightFolder.open();
-camFolder.open();
-
-/************ RENDU ************/
-renderer = new THREE.WebGLRenderer({antialias: true});
-renderer.shadowMap.enabled = true;
-renderer.setSize(W, H);
-container.appendChild(renderer.domElement);
-
-/************ CONTROLES ************/
-const controls = new OrbitControls( camera, renderer.domElement );
-//controls.enableDamping = true;
-
-
+                // onError callback
+                function ( err ) {
+                        console.error( 'An error happened.' );
+                }
+        );
+}
 
 /************ ANIMATION **************/
 
 function animate() { 
 
-        controls.update()
+        if (controls) controls.update();
+
+        //let deltaTime = clock.getDelta();
 
         requestAnimationFrame(animate);
-        renderer.render(scene, camera);       
+        
+        if (renderer && camera && scene) renderer.render(scene, camera); 
+
 }
 
 animate();
