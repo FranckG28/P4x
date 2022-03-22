@@ -6,6 +6,9 @@ import { OrbitControls } from '../three.js-master/examples/jsm/controls/OrbitCon
 
 import OBJTool from './objTools.js';
 
+
+/************ SCENE THREE JS **************/
+
 var W = window.innerWidth;
 var H = window.innerHeight;
 
@@ -34,41 +37,12 @@ camera.lookAt(scene.position);
 
 /* LUMIERES */
 const light = new THREE.DirectionalLight( 0xffffff, 1 );
+light.castShadow = true;
 light.position.x = 3;
 light.position.y = 5;
 light.position.z = 4;
 light.intensity = 1.0;
 scene.add( light );
-
-/* SOL */
-textureLoader.load(
-        // resource URL
-        'moon.png',
-
-        // onLoad callback
-        function ( texture ) {
-                texture.wrapS = THREE.RepeatWrapping;
-                texture.wrapT = THREE.RepeatWrapping;
-                texture.repeat.x = 10;
-                texture.repeat.y = 10;
-                let geo = new THREE.CircleGeometry(floorSize,polygons);
-                let mat = new THREE.MeshLambertMaterial();
-                mat.map = texture;
-                mat.side = THREE.DoubleSide;
-                var floor = new THREE.Mesh(geo, mat);
-                floor.position.set(0, -0.01, 0)
-                floor.rotateX(objTool.makeAngle(90))
-                scene.add(floor)
-        },
-
-        // onProgress callback currently not supported
-        undefined,
-
-        // onError callback
-        function ( err ) {
-                console.error( 'An error happened.' );
-        }
-);
 
 /* CIEL */
 
@@ -101,7 +75,74 @@ skyLoader.load(
 
 
 
-/* INTERFACE */
+
+/************ CANNON JS **************/
+
+let world = new CANNON.World();
+world.gravity.set(0, -9.82, 0);
+world.broadphase = new CANNON.NaiveBroadphase();
+
+const phongMaterial = new THREE.MeshPhongMaterial()
+const normalMaterial = new THREE.MeshNormalMaterial()
+
+/* SOL */
+textureLoader.load(
+        // resource URL
+        'moon.png',
+
+        // onLoad callback
+        function ( texture ) {
+                texture.wrapS = THREE.RepeatWrapping;
+                texture.wrapT = THREE.RepeatWrapping;
+                texture.repeat.x = 10;
+                texture.repeat.y = 10;
+                let geo = new THREE.CircleGeometry(floorSize,polygons);
+                let mat = new THREE.MeshPhongMaterial();
+                mat.map = texture;
+                mat.side = THREE.DoubleSide;
+                var floor = new THREE.Mesh(geo, mat);
+                floor.position.set(0, -0.01, 0)
+                floor.rotateX(objTool.makeAngle(90))
+                floor.receiveShadow = true;
+                scene.add(floor)
+        },
+
+        // onProgress callback currently not supported
+        undefined,
+
+        // onError callback
+        function ( err ) {
+                console.error( 'An error happened.' );
+        }
+);
+
+const planeShape = new CANNON.Plane()
+const planeBody = new CANNON.Body({ mass: 0 })
+planeBody.addShape(planeShape)
+planeBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2)
+world.addBody(planeBody)
+
+
+
+
+
+
+const cubeGeometry = new THREE.BoxGeometry(1, 1, 1)
+const cubeMesh = new THREE.Mesh(cubeGeometry, normalMaterial)
+cubeMesh.position.x = -3
+cubeMesh.position.y = 3
+cubeMesh.castShadow = true
+scene.add(cubeMesh)
+const cubeShape = new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5))
+const cubeBody = new CANNON.Body({ mass: 1 })
+cubeBody.addShape(cubeShape)
+cubeBody.position.x = cubeMesh.position.x
+cubeBody.position.y = cubeMesh.position.y
+cubeBody.position.z = cubeMesh.position.z
+world.addBody(cubeBody)
+
+
+/************ INTERFACE ************/
 var gui = new dat.GUI();
 
 var lightFolder = gui.addFolder("Light");
@@ -151,19 +192,47 @@ fovGUI.onChange(function(value) {
 lightFolder.open();
 camFolder.open();
 
-/* RENDU */
+/************ RENDU ************/
 renderer = new THREE.WebGLRenderer({antialias: true});
+renderer.shadowMap.enabled = true;
 renderer.setSize(W, H);
 container.appendChild(renderer.domElement);
 
-/* CONTROLES */
+/************ CONTROLES ************/
 const controls = new OrbitControls( camera, renderer.domElement );
+//controls.enableDamping = true;
 
+
+
+/************ ANIMATION **************/
+
+const clock = new THREE.Clock()
+let delta
 
 function animate() { 
+
+        controls.update()
+
+        //delta = clock.getDelta()
+        delta = Math.min(clock.getDelta(), 0.1)
+        world.step(delta)
+
+        cubeMesh.position.set(
+                cubeBody.position.x,
+                cubeBody.position.y,
+                cubeBody.position.z
+        )
+        cubeMesh.quaternion.set(
+                cubeBody.quaternion.x,
+                cubeBody.quaternion.y,
+                cubeBody.quaternion.z,
+                cubeBody.quaternion.w
+        )
 
         requestAnimationFrame(animate);
         renderer.render(scene, camera);       
 }
 
 animate();
+
+
