@@ -4,7 +4,7 @@ import * as dat from '../three.js-master/examples/jsm/libs/dat.gui.module.js';
 
 import { OrbitControls } from '../three.js-master/examples/jsm/controls/OrbitControls.js';
 
-import OBJTool from './objTool.js';
+import OBJTool from './objTools.js';
 
 var W = window.innerWidth;
 var H = window.innerHeight;
