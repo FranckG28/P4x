@@ -1,4 +1,5 @@
 import { OBJLoader } from '../three.js-master/examples/jsm/loaders/OBJLoader.js';
+import { Box3, Vector3, Mesh } from '../three.js-master/build/three.module.js';
 
 export default class OBJTool {
 
@@ -13,48 +14,53 @@ export default class OBJTool {
     }
 
     getObjectBox(object) {
-        let box3 = new THREE.Box3().setFromObject(object);
+        let box3 = new Box3().setFromObject(object);
         return box3;
     }
 
     getObjectSize(object) {
-        let vector3 = new THREE.Vector3();
+        let vector3 = new Vector3();
         this.getObjectBox(object).getSize(vector3);
         return vector3;
     }
 
-    createOBJModel(model, material, x, y, z, rX, rY, rZ, scale) {
-        this._loader.load(
-            model, 
-            function(object) {
+    createOBJModel(model, material, scale) {
 
-                // Mise à l'echelle
-                let size = this.getObjectSize(object)
-                let s = (1/ size.y) * scale
-                object.scale.set(s, s, s)
+        const parentClass = this;
 
-                // Positionnement
-                let adjustedBox = this.getObjectBox(object);
-                object.position.set(x, Math.abs(adjustedBox.min.y)+y, z)
-                scene.add(object)
+        const myPromise = function(resolve, reject) {
 
-                // Rotation
-                object.rotateX(makeAngle(rX));
-                object.rotateY(makeAngle(rY));
-                object.rotateZ(makeAngle(rZ));
+            parentClass._loader.load(
+                model, 
+                function(object) {
 
-                // Material
-                object.traverse(function(child){
-                    if (child instanceof THREE.Mesh) { child.material = material; }
-                })
+                    // Mise à l'echelle
+                    let size = parentClass.getObjectSize(object)
+                    let s = (1/ size.y) * scale
+                    object.scale.set(s, s, s)
+    
+                    // Positionnement
+                    let adjustedBox = parentClass.getObjectBox(object);
+                    object.position.set(0, Math.abs(adjustedBox.min.y), 0)
+    
+                    // Material
+                    object.traverse(function(child){
+                        if (child instanceof Mesh) { 
+                            child.material = material; }
+                    })
+    
+                    resolve(object);
+    
+                },
+                function(xhr) {},
+                function (error) {
+                    reject(error);
+                }
+            );
+        }
 
-            },
-            function(xhr) {},
-            function (error) {
-                console.error(error);
-            }
-        );
+        return new Promise(myPromise);
+
     }
-
 
 }
