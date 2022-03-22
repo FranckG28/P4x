@@ -16,6 +16,7 @@ const maxLightPos = 20;
 const floorSize = 200;
 const fov = 50;
 const polygons = 42;
+const mass = 150;
 
 var container = document.querySelector('#threejsContainer');
 
@@ -76,11 +77,7 @@ skyLoader.load(
 
 
 
-/************ CANNON JS **************/
-
-let world = new CANNON.World();
-world.gravity.set(0, -9.82, 0);
-world.broadphase = new CANNON.NaiveBroadphase();
+/************ AMMO JS **************/
 
 const phongMaterial = new THREE.MeshPhongMaterial()
 const normalMaterial = new THREE.MeshNormalMaterial()
@@ -116,30 +113,12 @@ textureLoader.load(
         }
 );
 
-const planeShape = new CANNON.Plane()
-const planeBody = new CANNON.Body({ mass: 0 })
-planeBody.addShape(planeShape)
-planeBody.quaternion.setFromAxisAngle(new CANNON.Vec3(1, 0, 0), -Math.PI / 2)
-world.addBody(planeBody)
 
 
 
+/************ CREATION DU VEHICULE *************/
 
 
-
-const cubeGeometry = new THREE.BoxGeometry(1, 1, 1)
-const cubeMesh = new THREE.Mesh(cubeGeometry, normalMaterial)
-cubeMesh.position.x = -3
-cubeMesh.position.y = 3
-cubeMesh.castShadow = true
-scene.add(cubeMesh)
-const cubeShape = new CANNON.Box(new CANNON.Vec3(0.5, 0.5, 0.5))
-const cubeBody = new CANNON.Body({ mass: 1 })
-cubeBody.addShape(cubeShape)
-cubeBody.position.x = cubeMesh.position.x
-cubeBody.position.y = cubeMesh.position.y
-cubeBody.position.z = cubeMesh.position.z
-world.addBody(cubeBody)
 
 
 /************ INTERFACE ************/
@@ -206,33 +185,12 @@ const controls = new OrbitControls( camera, renderer.domElement );
 
 /************ ANIMATION **************/
 
-const clock = new THREE.Clock()
-let delta
-
 function animate() { 
 
         controls.update()
-
-        //delta = clock.getDelta()
-        delta = Math.min(clock.getDelta(), 0.1)
-        world.step(delta)
-
-        cubeMesh.position.set(
-                cubeBody.position.x,
-                cubeBody.position.y,
-                cubeBody.position.z
-        )
-        cubeMesh.quaternion.set(
-                cubeBody.quaternion.x,
-                cubeBody.quaternion.y,
-                cubeBody.quaternion.z,
-                cubeBody.quaternion.w
-        )
 
         requestAnimationFrame(animate);
         renderer.render(scene, camera);       
 }
 
 animate();
-
-
