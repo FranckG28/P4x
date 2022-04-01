@@ -37,12 +37,13 @@ Pour l'initialiser, il faut fournir plusieurs éléments tel quel que la configu
 ```js
 function setupPhysicsWorld(){
 
-        let collisionConfiguration  = new Ammo.btDefaultCollisionConfiguration(),
-                dispatcher              = new Ammo.btCollisionDispatcher(collisionConfiguration),
-                overlappingPairCache    = new Ammo.btDbvtBroadphase(),
-                solver                  = new Ammo.btSequentialImpulseConstraintSolver();
+        let collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
+        let dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
+        let overlappingPairCache = new Ammo.btDbvtBroadphase();
+        let solver = new Ammo.btSequentialImpulseConstraintSolver();
 
-        physicsWorld           = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+        physicsWorld = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+        
         physicsWorld.setGravity(new Ammo.btVector3(0, -9.87, 0));
 
 }

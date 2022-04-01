@@ -22,14 +22,15 @@ let rigidBodies = [];
  //Ammojs Initialization
  Ammo().then( start )
             
-function setupPhysicsWorld(){
+ function setupPhysicsWorld(){
 
-        let collisionConfiguration  = new Ammo.btDefaultCollisionConfiguration(),
-                dispatcher              = new Ammo.btCollisionDispatcher(collisionConfiguration),
-                overlappingPairCache    = new Ammo.btDbvtBroadphase(),
-                solver                  = new Ammo.btSequentialImpulseConstraintSolver();
+        let collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
+        let dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
+        let overlappingPairCache = new Ammo.btDbvtBroadphase();
+        let solver = new Ammo.btSequentialImpulseConstraintSolver();
 
-        physicsWorld           = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+        physicsWorld = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
+        
         physicsWorld.setGravity(new Ammo.btVector3(0, -9.87, 0));
 
 }
@@ -63,6 +64,7 @@ function setupGraphicWorld() {
         /* Rendu */
         renderer = new THREE.WebGLRenderer({antialias: true});
         renderer.shadowMap.enabled = true;
+        renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
         renderer.setSize(window.innerWidth, window.innerHeight);
         container.appendChild(renderer.domElement);
 
@@ -97,17 +99,37 @@ function setupGraphicWorld() {
 
         dirLight.castShadow = true;
 
-        dirLight.shadow.mapSize.width = 2048;
-        dirLight.shadow.mapSize.height = 2048;
+        const shadowMapSize = 4096;
+        dirLight.shadow.mapSize.width = shadowMapSize;
+        dirLight.shadow.mapSize.height = shadowMapSize;
 
-        let d = 50;
+        let d = 100;
 
         dirLight.shadow.camera.left = -d;
         dirLight.shadow.camera.right = d;
         dirLight.shadow.camera.top = d;
         dirLight.shadow.camera.bottom = -d;
 
-        dirLight.shadow.camera.far = 13500;
+        dirLight.shadow.bias = -0.00016;
+
+
+        // var parameters = {
+        //         bias: dirLight.shadow.bias
+        // };
+
+        // var gui = new dat.GUI();
+
+        // var demo = gui.addFolder('Demo');
+        // var biasGUI = demo.add( parameters, 'bias').min(-0.001).max(0).step(0.00001).listen();
+
+        // demo.open();
+        // biasGUI.onChange(
+        //         function(value) 
+        //         { 
+        //                 dirLight.shadow.bias = value; 
+        //         }
+        // );
+
 
         /* CIEL */
         textureLoader.load(
