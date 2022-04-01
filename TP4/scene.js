@@ -9,16 +9,13 @@ import OBJTool from './objTools.js';
 /************** VARIABLES *****************/
 
 // Instances globales
-let physicsWorld, scene, camera, renderer, clock, controls;
+let physicsWorld, scene, camera, renderer, clock, controls, tmpTrans;
 
 // Loaders
 const textureLoader = new THREE.TextureLoader();
 
 // Liste des corps à mettre à jour
 let rigidBodies = [];
-
-// Transformation ammo.js
-let tmpTrans;
 
 /************ MOTEUR PHYSIQUE *************/
 
