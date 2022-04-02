@@ -14,6 +14,7 @@ let physicsWorld, scene, camera, renderer, clock, controls, tmpTrans;
 
 // Loaders
 const textureLoader = new THREE.TextureLoader();
+const gltfTool = new GLTFTools();
 
 // Materiaux globaux
 let wheelMaterial;
@@ -350,17 +351,13 @@ async function createVehicle(pos, quat)  {
         // *** Paramètres du véhicule ***
         const massVehicle = 800;
 
-        const wheelAxisPositionBack = -1;
-        const wheelRadiusBack = .4;
-        const wheelWidthBack = .3;
-        const wheelHalfTrackBack = 1;
-        const wheelAxisHeightBack = .3;
+        const wheelAxisPositionBack = -1.635;
+        const wheelAxisFrontPosition = .84;
 
-        const wheelAxisFrontPosition = 1.25;
-        const wheelHalfTrackFront = 1;
-        const wheelAxisHeightFront = .3;
-        const wheelRadiusFront = .35;
-        const wheelWidthFront = .2;
+        const wheelAxisHeightBack = .2;
+        const wheelAxisHeightFront = .08;
+
+        const wheelAxisLength = .3;
 
         const friction = 1000;
         const suspensionStiffness = 20.0;
@@ -377,8 +374,7 @@ async function createVehicle(pos, quat)  {
         // *** Création du chassis ***
 
         // Création du mesh du chassis du véhicule
-        const loader = new GLTFTools();
-        const chassisMesh = await loader.createGLTFObject('low_poly_car/Low-Poly-Racing-Car_CHASSIS.glb', 2)
+        const chassisMesh = await gltfTool.createGLTFObject('low_poly_car/Low-Poly-Racing-Car_CHASSIS.glb', 2)
         scene.add(chassisMesh)
 
         // Récupération des informations du chassis à partir du mesh chargé
@@ -389,6 +385,8 @@ async function createVehicle(pos, quat)  {
         const chassisWidth = chassisSize.x;
         const chassisHeight = chassisSize.y-1;
         const chassisLength = chassisSize.z;
+
+        const wheelTrackHalfLength = (chassisWidth-wheelAxisLength)/2;
 
         // Forme du chassis
         const geometry = new Ammo.btBoxShape(new Ammo.btVector3(chassisWidth * .5, chassisHeight * .5, chassisLength * .5));
@@ -416,7 +414,7 @@ async function createVehicle(pos, quat)  {
         // *** Creation de la physique du véhicule ***
         let engineForce = 0;
         let vehicleSteering = 0;
-        let breakingForce = 0;
+        let breakingForce = maxBreakingForce;
         const tuning = new Ammo.btVehicleTuning();
         const rayCaster = new Ammo.btDefaultVehicleRaycaster(physicsWorld);
         const vehicle = new Ammo.btRaycastVehicle(tuning, body, rayCaster);
@@ -433,7 +431,21 @@ async function createVehicle(pos, quat)  {
         const wheelAxleCS = new Ammo.btVector3(-1, 0, 0);
 
         // Fonction dez création d'une roue
-        function addWheel(isFront, pos, radius, width, index) {
+        async function addWheel(isFront, pos, index) {
+
+                // Création du Mesh associé à cette roue
+                //wheelMeshes[index] = createWheelMesh(radius, width);
+                const wheelMesh = await gltfTool.createGLTFObject('low_poly_car/Low-Poly-Racing-Car_WHEELS.glb', .6);
+                scene.add(wheelMesh)
+
+                // Récupération des informations de la roue à partir de son mesh
+                const wheelSize = new THREE.Vector3();
+                const wheelBox = new THREE.Box3().setFromObject(wheelMesh);
+                wheelBox.getSize(wheelSize);
+
+                const radius = wheelSize.y/2
+
+                wheelMeshes[index] = wheelMesh
 
                 // Informations de la roue
                 const wheelInfo = vehicle.addWheel(
@@ -452,15 +464,18 @@ async function createVehicle(pos, quat)  {
                 wheelInfo.set_m_frictionSlip(friction);
                 wheelInfo.set_m_rollInfluence(rollInfluence);
 
-                // Création du Mesh associé à cette roue
-                wheelMeshes[index] = createWheelMesh(radius, width);
+                
         }
 
         // Ajout des 4 roues à l'aide de notre fonction
-        addWheel(true, new Ammo.btVector3(wheelHalfTrackFront, wheelAxisHeightFront, wheelAxisFrontPosition), wheelRadiusFront, wheelWidthFront, FRONT_LEFT);
-        addWheel(true, new Ammo.btVector3(-wheelHalfTrackFront, wheelAxisHeightFront, wheelAxisFrontPosition), wheelRadiusFront, wheelWidthFront, FRONT_RIGHT);
-        addWheel(false, new Ammo.btVector3(-wheelHalfTrackBack, wheelAxisHeightBack, wheelAxisPositionBack), wheelRadiusBack, wheelWidthBack, BACK_LEFT);
-        addWheel(false, new Ammo.btVector3(wheelHalfTrackBack, wheelAxisHeightBack, wheelAxisPositionBack), wheelRadiusBack, wheelWidthBack, BACK_RIGHT);
+        await addWheel(true, 
+                new Ammo.btVector3(wheelTrackHalfLength, wheelAxisHeightFront, wheelAxisFrontPosition), FRONT_LEFT);
+        await addWheel(true, 
+                new Ammo.btVector3(-wheelTrackHalfLength, wheelAxisHeightFront, wheelAxisFrontPosition), FRONT_RIGHT);
+        await addWheel(false, 
+                new Ammo.btVector3(-wheelTrackHalfLength, wheelAxisHeightBack, wheelAxisPositionBack), BACK_LEFT);
+        await addWheel(false, 
+                new Ammo.btVector3(wheelTrackHalfLength, wheelAxisHeightBack, wheelAxisPositionBack), BACK_RIGHT);
 
         // Synchronisation de la voiture avec les actions du clavier et l'univers graphique
         function sync(dt) {
@@ -542,16 +557,16 @@ async function createVehicle(pos, quat)  {
         syncList.push(sync);
 }
 
-// Fonction de création du Mesh correspondant à une roue
-function createWheelMesh(radius, width) {
-        const geometry = new THREE.CylinderGeometry(radius, radius, width, 24, 1);
-        geometry.rotateZ(Math.PI / 2);
-        const mesh = new THREE.Mesh(geometry, wheelMaterial);
-        mesh.add(new THREE.Mesh(new THREE.BoxGeometry(width * 1.5, radius * 1.75, radius*.25, 1, 1, 1), wheelMaterial));
-        mesh.castShadow = true;
-        scene.add(mesh);
-        return mesh;
-}
+// // Fonction de création du Mesh correspondant à une roue
+// function createWheelMesh(radius, width) {
+//         const geometry = new THREE.CylinderGeometry(radius, radius, width, 24, 1);
+//         geometry.rotateZ(Math.PI / 2);
+//         const mesh = new THREE.Mesh(geometry, wheelMaterial);
+//         mesh.add(new THREE.Mesh(new THREE.BoxGeometry(width * 1.5, radius * 1.75, radius*.25, 1, 1, 1), wheelMaterial));
+//         mesh.castShadow = true;
+//         scene.add(mesh);
+//         return mesh;
+// }
 
 // Evenement touche relachée
 function keyup(e) {
