@@ -34,7 +34,7 @@ export default class GLTFTools {
                 model, 
                 function(gltf) {
 
-                    let object = gltf.scene.children[0]
+                    let object = gltf.scene
 
                     // Mise à l'echelle
                     let size = parentClass.getObjectSize(object)

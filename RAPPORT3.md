@@ -85,7 +85,7 @@ function updatePhysics( deltaTime ){
 
 ### __2. Création d'un véhicule__
 
-[![Image from Gyazo](https://i.gyazo.com/08adf9a51038ab33235134631e5da532.gif)](https://gyazo.com/08adf9a51038ab33235134631e5da532)
+[INSERER IMAGE ETAPE]
 
 Après avoir fait tomber une boule sur le terrain, il est maintenant temps de passer à la création de la voiture.
 
@@ -101,6 +101,14 @@ Pour finir, on crée une fonction qui sera exécutée à chaque image, qui aura 
 
 Après avoir associé les évènements de touche de clavier préssée et relachée, la voiture est fonctionnelle !
 
-Maintenant, j'aimerai que la voiture soit plus réaliste, je vais essayer de lui appliquer un modèle 3D. Je me suis basé sur ma classe `OBJTools` créé précédement pour cette fois importer et normaliser un modèle GLTF.
+[![Image from Gyazo](https://i.gyazo.com/08adf9a51038ab33235134631e5da532.gif)](https://gyazo.com/08adf9a51038ab33235134631e5da532)
 
-[![Image from Gyazo](https://i.gyazo.com/8e60f7c17606bcb5a94957ac11e61188.png)](https://gyazo.com/8e60f7c17606bcb5a94957ac11e61188)
+
+Maintenant, j'aimerai le véhicule ressemble un peu plus à une voiture. Pour cela, je vais lui appliquer un modèle 3D. Je me suis basé sur ma classe `OBJTools` créé précédement pour cette fois importer et normaliser un modèle GLTF.
+
+Le chassis du véhicule et des roues étant indépendant, il faut que je sépare les roues du modèle principal afin d'importer les deux séparéments.
+Après de __très__ longues recherches pour un modèle 3D gratuit et éditable dans blender pour lequel je pourrais extraire les roues, j'ai fini par obtenir ma voiture en deux fichiers : le chassis et une roue. 
+
+[![Image from Gyazo](https://i.gyazo.com/afc8f44e087a939445f3c2c0622a018a.jpg)](https://gyazo.com/afc8f44e087a939445f3c2c0622a018a)
+
+

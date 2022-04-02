@@ -406,7 +406,7 @@ function createVehicle(pos, quat) {
         const chassisMesh = createChassisMesh(chassisWidth, chassisHeight, chassisLength);
 
         const loader = new GLTFTools();
-        loader.createGLTFObject('gltf/car/scene.gltf', 2).then(
+        loader.createGLTFObject('low_poly_car/Low-Poly-Racing-Car.glb', 2).then(
                 (value) => {
                         scene.add(value)
 
