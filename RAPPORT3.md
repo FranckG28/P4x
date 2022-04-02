@@ -112,3 +112,4 @@ Après de __très__ longues recherches pour un modèle 3D gratuit et éditable d
 [![Image from Gyazo](https://i.gyazo.com/afc8f44e087a939445f3c2c0622a018a.jpg)](https://gyazo.com/afc8f44e087a939445f3c2c0622a018a)
 
 
+Pour que les colissions soient correctes, j'ai du modifier en profondeur la façon dont la voiture est créée. Désormais, on ne défini plus la taille du chassis au préalable, mais elle est récupérée à partir du modèle chargée.

@@ -348,9 +348,6 @@ function updatePhysics( deltaTime ){
 async function createVehicle(pos, quat)  {
 
         // *** Paramètres du véhicule ***
-        const chassisWidth = 1.8;
-        const chassisHeight = .6;
-        const chassisLength = 4;
         const massVehicle = 800;
 
         const wheelAxisPositionBack = -1;
@@ -379,6 +376,20 @@ async function createVehicle(pos, quat)  {
 
         // *** Création du chassis ***
 
+        // Création du mesh du chassis du véhicule
+        const loader = new GLTFTools();
+        const chassisMesh = await loader.createGLTFObject('low_poly_car/Low-Poly-Racing-Car_CHASSIS.glb', 2)
+        scene.add(chassisMesh)
+
+        // Récupération des informations du chassis à partir du mesh chargé
+        const chassisSize = new THREE.Vector3();
+        const chassisBox = new THREE.Box3().setFromObject(chassisMesh);
+        chassisBox.getSize(chassisSize);
+
+        const chassisWidth = chassisSize.x;
+        const chassisHeight = chassisSize.y-1;
+        const chassisLength = chassisSize.z;
+
         // Forme du chassis
         const geometry = new Ammo.btBoxShape(new Ammo.btVector3(chassisWidth * .5, chassisHeight * .5, chassisLength * .5));
 
@@ -401,11 +412,6 @@ async function createVehicle(pos, quat)  {
 
         // Ajout du corp rigide au monde physique
         physicsWorld.addRigidBody(body);
-
-        // Création du mesh correspondant au corp rigide du chassis
-        const loader = new GLTFTools();
-        const chassisMesh = await loader.createGLTFObject('low_poly_car/Low-Poly-Racing-Car_CHASSIS.glb', 2)
-        scene.add(chassisMesh)
 
         // *** Creation de la physique du véhicule ***
         let engineForce = 0;
