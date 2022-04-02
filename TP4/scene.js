@@ -403,19 +403,14 @@ function createVehicle(pos, quat) {
         physicsWorld.addRigidBody(body);
 
         // Création du mesh correspondant au corp rigide du chassis
-        const chassisMesh = createChassisMesh(chassisWidth, chassisHeight, chassisLength);
+        //const chassisMesh = createChassisMesh(chassisWidth, chassisHeight, chassisLength);
+        let chassisMesh = new THREE.Mesh();
 
         const loader = new GLTFTools();
-        loader.createGLTFObject('low_poly_car/Low-Poly-Racing-Car.glb', 2).then(
+        loader.createGLTFObject('low_poly_car/Low-Poly-Racing-Car_CHASSIS.glb', 2).then(
                 (value) => {
                         scene.add(value)
-
-                        value.position.set(0,2,0)
-
-                        const box = new THREE.BoxHelper( value, 0xffff00 );
-                        scene.add(box)
-
-                        
+                        chassisMesh = value;
                 })
 
         // *** Creation de la physique du véhicule ***
