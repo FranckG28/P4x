@@ -53,7 +53,11 @@ function start(){
         createBall();
 
         // Création de la voiture
-        createVehicle(new THREE.Vector3(0, 8, 10), new THREE.Quaternion(0, .42, 0, 1))
+        createVehicle(new THREE.Vector3(0, 3, 10), new THREE.Quaternion(0, .42, 0, 1))
+
+        // Association des évènements :
+        window.addEventListener( 'keydown', keydown);
+        window.addEventListener( 'keyup', keyup);
 
         // Affichage de la première image
         animate();
@@ -533,6 +537,7 @@ function createChassisMesh(w, l, h) {
         const shape = new THREE.BoxGeometry(w, l, h, 1, 1, 1);
         const material = new THREE.MeshNormalMaterial()
         const mesh = new THREE.Mesh(shape, material);
+        mesh.castShadow = true;
         scene.add(mesh);
         return mesh;
 }
@@ -543,6 +548,27 @@ function createWheelMesh(radius, width) {
         geometry.rotateZ(Math.PI / 2);
         const mesh = new THREE.Mesh(geometry, wheelMaterial);
         mesh.add(new THREE.Mesh(new THREE.BoxGeometry(width * 1.5, radius * 1.75, radius*.25, 1, 1, 1), wheelMaterial));
+        mesh.castShadow = true;
         scene.add(mesh);
         return mesh;
+}
+
+// Evenement touche relachée
+function keyup(e) {
+        if(keysActions[e.code]) {
+                actions[keysActions[e.code]] = false;
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+        }
+}
+
+// Evenement touche appuyée
+function keydown(e) {
+        if(keysActions[e.code]) {
+                actions[keysActions[e.code]] = true;
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+        }
 }
