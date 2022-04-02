@@ -85,4 +85,20 @@ function updatePhysics( deltaTime ){
 
 ### __2. Création d'un véhicule__
 
+[![Image from Gyazo](https://i.gyazo.com/08adf9a51038ab33235134631e5da532.gif)](https://gyazo.com/08adf9a51038ab33235134631e5da532)
+
 Après avoir fait tomber une boule sur le terrain, il est maintenant temps de passer à la création de la voiture.
+
+Heureusement, Bullet propose un objet `RaycastVehicule` qui gère toute la physique d'un véhicule. Il ne reste plus qu'à suivre la documentation pour l'implémenter.
+
+Il y a énormément de paramètres à fournir pour instancier un véhicule : la taille et position du chassis, taille et position des roues, la friction, les suspensions, la puissance du moteur, des freins, de la rotation des roues ...
+
+Il ne manque plus que le corp rigide correspondant au chassis pour instancier le `RaycastVehicle`. Une fois ce dernier créé et également ajouté au monde physique, on peut y ajouter des roues.
+
+On crée les roues en indiquant leur position, leur taille, leurs caractéristiques, puis on les atachent au véhicule.
+
+Pour finir, on crée une fonction qui sera exécutée à chaque image, qui aura pour mission de modifier le comportement du véhicule selon les touches du clavier activées, et de recopier la position de tout les éléments de la voiture dans le monde graphique.
+
+Après avoir associé les évènements de touche de clavier préssée et relachée, la voiture est fonctionnelle !
+
+Maintenant, j'aimerai que la voiture soit plus réaliste, je vais essayer de lui appliquer un modèle 3D.
