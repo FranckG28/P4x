@@ -14,15 +14,56 @@ let physicsWorld, scene, camera, renderer, clock, controls, tmpTrans;
 // Loaders
 const textureLoader = new THREE.TextureLoader();
 
+// Materiaux globaux
+let wheelMaterial;
+
 // Liste des corps à mettre à jour
 let rigidBodies = [];
 
-/************ MOTEUR PHYSIQUE *************/
+// Fonctions de mise à jours à executer
+let syncList = [];
 
- //Ammojs Initialization
- Ammo().then( start )
-            
- function setupPhysicsWorld(){
+// Actions de la voiture
+let actions = {};
+const keysActions = {
+        "KeyW":'acceleration',
+        "KeyS":'braking',
+        "KeyA":'left',
+        "KeyD":'right'
+};
+
+/************ Fonction de démarrage *************/
+
+// Executer la fonction start dès le chargement de Ammo
+Ammo().then( start )
+
+
+function start(){
+
+        // Initialisation du monde physique
+        setupPhysicsWorld();
+
+        // Initialisation du monde graphique
+        setupGraphicWorld();
+
+        // Création du sol
+        createFloor();
+
+        // Création de la balle
+        createBall();
+
+        // Création de la voiture
+        createVehicle(new THREE.Vector3(0, 8, 10), new THREE.Quaternion(0, .42, 0, 1))
+
+        // Affichage de la première image
+        animate();
+        
+}            
+
+/*** Fonction d'initialisation du monde physique */
+function setupPhysicsWorld(){
+
+        tmpTrans = new Ammo.btTransform();
 
         let collisionConfiguration = new Ammo.btDefaultCollisionConfiguration();
         let dispatcher = new Ammo.btCollisionDispatcher(collisionConfiguration);
@@ -35,22 +76,8 @@ let rigidBodies = [];
 
 }
 
-function start(){
 
-        setupPhysicsWorld();
-        tmpTrans = new Ammo.btTransform();
-
-        setupGraphicWorld();
-        createFloor();
-        createBall();
-
-        animate();
-
-        
-}
-
-/************ SCENE THREE JS **************/
-
+/*** SCENE THREE JS */
 function setupGraphicWorld() {
         const fov = 50;
         const lightColor = 0xffffff;
@@ -112,6 +139,8 @@ function setupGraphicWorld() {
 
         dirLight.shadow.bias = -0.00016;
 
+        // Initialisation des materiaux
+        wheelMaterial = new THREE.MeshNormalMaterial()
 
         // var parameters = {
         //         bias: dirLight.shadow.bias
@@ -159,20 +188,28 @@ function setupGraphicWorld() {
         );
 }
 
-/************ ANIMATION **************/
-
+/***  Fonction executée à chaque image : */
 function animate() { 
 
+        // Mise à jour des contrôles
         if (controls) controls.update();
 
-        updatePhysics(clock.getDelta());
-        
-        if (renderer && camera && scene) renderer.render(scene, camera);
+        // Calcul du temps passsé
+        const dt = clock.getDelta()
 
+        // Mise à jour des éléments de la voiture
+        for (let i = 0; i < syncList.length; i++)
+		syncList[i](dt);
+
+        // Mise à jour de la physique
+        updatePhysics(dt);
+
+        // Rendu de la scène
+        if (renderer && camera && scene) renderer.render(scene, camera);
         requestAnimationFrame(animate);
 }
 
-/***************** MISE A JOUR DE L'AFFICHAGE ******************/
+/*** Fonction de création du sol ***/
 function createFloor(){
     
         let pos = {x: 0, y: 0, z: 0};
@@ -233,9 +270,10 @@ function createFloor(){
 }
 
     
+/*** Fonction de création de la balle */
 function createBall(){
 
-        let pos = {x: 0, y: 20, z: 0};
+        let pos = {x: 10, y: 20, z: 10};
         let radius = 2;
         let quat = {x: 0, y: 0, z: 0, w: 1};
         let mass = 1;
@@ -275,6 +313,7 @@ function createBall(){
 }
     
     
+/*** Fonction de mise à jour du monde physique et de synchronisation avec le monde graphique */
 function updatePhysics( deltaTime ){
 
         // Step world
@@ -296,4 +335,214 @@ function updatePhysics( deltaTime ){
                 }
         }
 
+}
+
+
+/*** Fonction de création du véhicule */
+function createVehicle(pos, quat) {
+
+        // *** Paramètres du véhicule ***
+        const chassisWidth = 1.8;
+        const chassisHeight = .6;
+        const chassisLength = 4;
+        const massVehicle = 800;
+
+        const wheelAxisPositionBack = -1;
+        const wheelRadiusBack = .4;
+        const wheelWidthBack = .3;
+        const wheelHalfTrackBack = 1;
+        const wheelAxisHeightBack = .3;
+
+        const wheelAxisFrontPosition = 1.25;
+        const wheelHalfTrackFront = 1;
+        const wheelAxisHeightFront = .3;
+        const wheelRadiusFront = .35;
+        const wheelWidthFront = .2;
+
+        const friction = 1000;
+        const suspensionStiffness = 20.0;
+        const suspensionDamping = 2.3;
+        const suspensionCompression = 4.4;
+        const suspensionRestLength = 0.6;
+        const rollInfluence = 0.2;
+
+        const steeringIncrement = .04;
+        const steeringClamp = .5;
+        const maxEngineForce = 2000;
+        const maxBreakingForce = 100;
+
+        // *** Création du chassis ***
+
+        // Forme du chassis
+        const geometry = new Ammo.btBoxShape(new Ammo.btVector3(chassisWidth * .5, chassisHeight * .5, chassisLength * .5));
+
+        // Transformation du chassis
+        const transform = new Ammo.btTransform();
+        transform.setIdentity();
+        transform.setOrigin(new Ammo.btVector3(pos.x, pos.y, pos.z));
+        transform.setRotation(new Ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w));
+
+        // Création du l'état du corp
+        const motionState = new Ammo.btDefaultMotionState(transform);
+
+        // Calcul de l'inertie de la voiture
+        const localInertia = new Ammo.btVector3(0, 0, 0);
+        geometry.calculateLocalInertia(massVehicle, localInertia);
+
+        // Création du corp rigide de la voiture
+        const body = new Ammo.btRigidBody(new Ammo.btRigidBodyConstructionInfo(massVehicle, motionState, geometry, localInertia));
+        body.setActivationState(4);
+
+        // Ajout du corp rigide au monde physique
+        physicsWorld.addRigidBody(body);
+
+        // Création du mesh correspondant au corp rigide du chassis
+        const chassisMesh = createChassisMesh(chassisWidth, chassisHeight, chassisLength);
+
+        // *** Creation de la physique du véhicule ***
+        let engineForce = 0;
+        let vehicleSteering = 0;
+        let breakingForce = 0;
+        const tuning = new Ammo.btVehicleTuning();
+        const rayCaster = new Ammo.btDefaultVehicleRaycaster(physicsWorld);
+        const vehicle = new Ammo.btRaycastVehicle(tuning, body, rayCaster);
+        vehicle.setCoordinateSystem(0, 1, 2);
+        physicsWorld.addAction(vehicle);
+
+        // *** Création des roues ***
+        const FRONT_LEFT = 0;
+        const FRONT_RIGHT = 1;
+        const BACK_LEFT = 2;
+        const BACK_RIGHT = 3;
+        const wheelMeshes = [];
+        const wheelDirectionCS0 = new Ammo.btVector3(0, -1, 0);
+        const wheelAxleCS = new Ammo.btVector3(-1, 0, 0);
+
+        // Fonction dez création d'une roue
+        function addWheel(isFront, pos, radius, width, index) {
+
+                // Informations de la roue
+                const wheelInfo = vehicle.addWheel(
+                                pos,
+                                wheelDirectionCS0,
+                                wheelAxleCS,
+                                suspensionRestLength,
+                                radius,
+                                tuning,
+                                isFront);
+
+                // Réglages physiques de la roue
+                wheelInfo.set_m_suspensionStiffness(suspensionStiffness);
+                wheelInfo.set_m_wheelsDampingRelaxation(suspensionDamping);
+                wheelInfo.set_m_wheelsDampingCompression(suspensionCompression);
+                wheelInfo.set_m_frictionSlip(friction);
+                wheelInfo.set_m_rollInfluence(rollInfluence);
+
+                // Création du Mesh associé à cette roue
+                wheelMeshes[index] = createWheelMesh(radius, width);
+        }
+
+        // Ajout des 4 roues à l'aide de notre fonction
+        addWheel(true, new Ammo.btVector3(wheelHalfTrackFront, wheelAxisHeightFront, wheelAxisFrontPosition), wheelRadiusFront, wheelWidthFront, FRONT_LEFT);
+        addWheel(true, new Ammo.btVector3(-wheelHalfTrackFront, wheelAxisHeightFront, wheelAxisFrontPosition), wheelRadiusFront, wheelWidthFront, FRONT_RIGHT);
+        addWheel(false, new Ammo.btVector3(-wheelHalfTrackBack, wheelAxisHeightBack, wheelAxisPositionBack), wheelRadiusBack, wheelWidthBack, BACK_LEFT);
+        addWheel(false, new Ammo.btVector3(wheelHalfTrackBack, wheelAxisHeightBack, wheelAxisPositionBack), wheelRadiusBack, wheelWidthBack, BACK_RIGHT);
+
+        // Synchronisation de la voiture avec les actions du clavier et l'univers graphique
+        function sync(dt) {
+
+                // Obtention de la vitesse de la voiture
+                const speed = vehicle.getCurrentSpeedKmHour();
+
+                // speedometer.innerHTML = (speed < 0 ? '(R) ' : '') + Math.abs(speed).toFixed(1) + ' km/h';
+
+                breakingForce = 0;
+                engineForce = 0;
+
+                if (actions.acceleration) {
+                        if (speed < -1)
+                                breakingForce = maxBreakingForce;
+                        else engineForce = maxEngineForce;
+                }
+                if (actions.braking) {
+                        if (speed > 1)
+                                breakingForce = maxBreakingForce;
+                        else engineForce = -maxEngineForce / 2;
+                }
+                if (actions.left) {
+                        if (vehicleSteering < steeringClamp)
+                                vehicleSteering += steeringIncrement;
+                }
+                else {
+                        if (actions.right) {
+                                if (vehicleSteering > -steeringClamp)
+                                        vehicleSteering -= steeringIncrement;
+                        }
+                        else {
+                                if (vehicleSteering < -steeringIncrement)
+                                        vehicleSteering += steeringIncrement;
+                                else {
+                                        if (vehicleSteering > steeringIncrement)
+                                                vehicleSteering -= steeringIncrement;
+                                        else {
+                                                vehicleSteering = 0;
+                                        }
+                                }
+                        }
+                }
+
+                // Définition de la nouvelle force d'acceleration
+                vehicle.applyEngineForce(engineForce, BACK_LEFT);
+                vehicle.applyEngineForce(engineForce, BACK_RIGHT);
+
+                // Définition de la nouvelle force de freinage
+                vehicle.setBrake(breakingForce / 2, FRONT_LEFT);
+                vehicle.setBrake(breakingForce / 2, FRONT_RIGHT);
+                vehicle.setBrake(breakingForce, BACK_LEFT);
+                vehicle.setBrake(breakingForce, BACK_RIGHT);
+
+                // Définition de l'axe des roues
+                vehicle.setSteeringValue(vehicleSteering, FRONT_LEFT);
+                vehicle.setSteeringValue(vehicleSteering, FRONT_RIGHT);
+
+                // Synchronisation des roues avec l'univers graphique
+                let tm, p, q, i;
+                const n = vehicle.getNumWheels();
+                for (i = 0; i < n; i++) {
+                        vehicle.updateWheelTransform(i, true);
+                        tm = vehicle.getWheelTransformWS(i);
+                        p = tm.getOrigin();
+                        q = tm.getRotation();
+                        wheelMeshes[i].position.set(p.x(), p.y(), p.z());
+                        wheelMeshes[i].quaternion.set(q.x(), q.y(), q.z(), q.w());
+                }
+
+                // Synchronisation du chassis avec l'univers graphique
+                tm = vehicle.getChassisWorldTransform();
+                p = tm.getOrigin();
+                q = tm.getRotation();
+                chassisMesh.position.set(p.x(), p.y(), p.z());
+                chassisMesh.quaternion.set(q.x(), q.y(), q.z(), q.w());
+        }
+
+        syncList.push(sync);
+}
+
+// Fonction de création du Mesh correspondant au chassis
+function createChassisMesh(w, l, h) {
+        const shape = new THREE.BoxGeometry(w, l, h, 1, 1, 1);
+        const material = new THREE.MeshNormalMaterial()
+        const mesh = new THREE.Mesh(shape, material);
+        scene.add(mesh);
+        return mesh;
+}
+
+// Fonction de création du Mesh correspondant à une roue
+function createWheelMesh(radius, width) {
+        const geometry = new THREE.CylinderGeometry(radius, radius, width, 24, 1);
+        geometry.rotateZ(Math.PI / 2);
+        const mesh = new THREE.Mesh(geometry, wheelMaterial);
+        mesh.add(new THREE.Mesh(new THREE.BoxGeometry(width * 1.5, radius * 1.75, radius*.25, 1, 1, 1), wheelMaterial));
+        scene.add(mesh);
+        return mesh;
 }

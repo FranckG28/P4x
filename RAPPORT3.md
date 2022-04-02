@@ -43,7 +43,7 @@ function setupPhysicsWorld(){
         let solver = new Ammo.btSequentialImpulseConstraintSolver();
 
         physicsWorld = new Ammo.btDiscreteDynamicsWorld(dispatcher, overlappingPairCache, solver, collisionConfiguration);
-        
+
         physicsWorld.setGravity(new Ammo.btVector3(0, -9.87, 0));
 
 }
@@ -85,3 +85,4 @@ function updatePhysics( deltaTime ){
 
 ### __2. Création d'un véhicule__
 
+Après avoir fait tomber une boule sur le terrain, il est maintenant temps de passer à la création de la voiture.
