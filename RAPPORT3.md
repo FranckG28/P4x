@@ -113,3 +113,10 @@ Après de __très__ longues recherches pour un modèle 3D gratuit et éditable d
 
 
 Pour que les colissions soient correctes, j'ai du modifier en profondeur la façon dont la voiture est créée. Désormais, on ne défini plus la taille du chassis au préalable, mais elle est récupérée à partir du modèle chargée.
+
+J'ai fait de même pour les roues : leur taille est définie par celle du modèle importé. Avant un travail méticuleux pour les placer parfaitment dans les emplacements prévus pour du chassis, il reste un dernier problème à régler. Les roues gauches et droites sont montées dans le même sens. Il faut inverser un côté.
+
+| Roues gauches | Roues droites |
+|---------------|---------------|
+|[![Image from Gyazo](https://i.gyazo.com/f9513f9eae671af3b76c685750ac4a6d.jpg)](https://gyazo.com/f9513f9eae671af3b76c685750ac4a6d)|[![Image from Gyazo](https://i.gyazo.com/1b78450958d2157341de141a05f24189.png)](https://gyazo.com/1b78450958d2157341de141a05f24189)|
+
