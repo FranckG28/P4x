@@ -5,6 +5,7 @@ import * as dat from '../three.js-master/examples/jsm/libs/dat.gui.module.js';
 import { OrbitControls } from '../three.js-master/examples/jsm/controls/OrbitControls.js';
 
 import OBJTool from './objTools.js';
+import GLTFTools from './gltfTools.js';
 
 /************** VARIABLES *****************/
 
@@ -96,6 +97,7 @@ function setupGraphicWorld() {
         renderer = new THREE.WebGLRenderer({antialias: true});
         renderer.shadowMap.enabled = true;
         renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
+        renderer.outputEncoding = THREE.sRGBEncoding;
         renderer.setSize(window.innerWidth, window.innerHeight);
         container.appendChild(renderer.domElement);
 
@@ -402,6 +404,19 @@ function createVehicle(pos, quat) {
 
         // Création du mesh correspondant au corp rigide du chassis
         const chassisMesh = createChassisMesh(chassisWidth, chassisHeight, chassisLength);
+
+        const loader = new GLTFTools();
+        loader.createGLTFObject('gltf/car/scene.gltf', 2).then(
+                (value) => {
+                        scene.add(value)
+
+                        value.position.set(0,2,0)
+
+                        const box = new THREE.BoxHelper( value, 0xffff00 );
+                        scene.add(box)
+
+                        
+                })
 
         // *** Creation de la physique du véhicule ***
         let engineForce = 0;

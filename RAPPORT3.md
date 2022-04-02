@@ -101,4 +101,6 @@ Pour finir, on crée une fonction qui sera exécutée à chaque image, qui aura 
 
 Après avoir associé les évènements de touche de clavier préssée et relachée, la voiture est fonctionnelle !
 
-Maintenant, j'aimerai que la voiture soit plus réaliste, je vais essayer de lui appliquer un modèle 3D.
+Maintenant, j'aimerai que la voiture soit plus réaliste, je vais essayer de lui appliquer un modèle 3D. Je me suis basé sur ma classe `OBJTools` créé précédement pour cette fois importer et normaliser un modèle GLTF.
+
+[![Image from Gyazo](https://i.gyazo.com/8e60f7c17606bcb5a94957ac11e61188.png)](https://gyazo.com/8e60f7c17606bcb5a94957ac11e61188)
