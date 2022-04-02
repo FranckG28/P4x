@@ -120,3 +120,15 @@ J'ai fait de même pour les roues : leur taille est définie par celle du modèl
 |---------------|---------------|
 |[![Image from Gyazo](https://i.gyazo.com/f9513f9eae671af3b76c685750ac4a6d.jpg)](https://gyazo.com/f9513f9eae671af3b76c685750ac4a6d)|[![Image from Gyazo](https://i.gyazo.com/1b78450958d2157341de141a05f24189.png)](https://gyazo.com/1b78450958d2157341de141a05f24189)|
 
+J'ai d'abord essayé de modifier la rotation à chaque image, mais le Mesh de la roue n'étant pas symétrique sur cet axe, le placement n'est pas correct. 
+
+```js
+// On vérifie si c'est une roue gauche
+if (i==0 || i== 3) {
+        // On modifie la rotation de 180°
+        wheelMeshes[i].rotateY(180 * (Math.PI/180))
+}
+```
+
+J'ai à la place créé un nouveau modèle 3D de la roue gauche. La voiture est enfin terminée !
+

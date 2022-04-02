@@ -435,7 +435,15 @@ async function createVehicle(pos, quat)  {
 
                 // Création du Mesh associé à cette roue
                 //wheelMeshes[index] = createWheelMesh(radius, width);
-                const wheelMesh = await gltfTool.createGLTFObject('low_poly_car/Low-Poly-Racing-Car_WHEELS.glb', .6);
+
+                let path;
+                if (index == 0 || index == 3) {
+                        path = 'low_poly_car/Low-Poly-Racing-Car_WHEEL_LEFT.glb'
+                } else {
+                        path = 'low_poly_car/Low-Poly-Racing-Car_WHEEL_RIGHT.glb'
+                }
+
+                const wheelMesh = await gltfTool.createGLTFObject(path, .6);
                 scene.add(wheelMesh)
 
                 // Récupération des informations de la roue à partir de son mesh
@@ -542,8 +550,10 @@ async function createVehicle(pos, quat)  {
                         tm = vehicle.getWheelTransformWS(i);
                         p = tm.getOrigin();
                         q = tm.getRotation();
+
                         wheelMeshes[i].position.set(p.x(), p.y(), p.z());
-                        wheelMeshes[i].quaternion.set(q.x(), q.y(), q.z(), q.w());
+                        wheelMeshes[i].quaternion.set(q.x() , q.y(), q.z(), q.w());
+
                 }
 
                 // Synchronisation du chassis avec l'univers graphique
