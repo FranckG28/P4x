@@ -10,7 +10,7 @@ _Franck GUTMANN OS1_
 
 1. Intégration du moteur physique
 2. Création du véhicule
-3. Modeler un beau terrain 
+3. Modeler le terrain 
 4. Ajouter des obstacles
 5. Caméra qui suit la voiture
 
@@ -135,4 +135,11 @@ J'ai à la place créé un nouveau modèle 3D de la roue gauche. La voiture est 
 
 [![Image from Gyazo](https://i.gyazo.com/8d57ea1320fad43c6875d2eef9035911.gif)](https://gyazo.com/8d57ea1320fad43c6875d2eef9035911)
 
-### __3. Modeler un beau terrain :__
+### __3. Modeler le terrain :__
+
+Je m'attaque maintenant à une tâche tout aussi lourde : modeler un terrain. Après quelques recherches, je trouve des moyens de générer un terrain à partir de fonctions simples tels que la fonction sinus. Mais j'ai découvert quelque chose de bien plus intéressant : les heightmaps. Ce sont des images en niveau de gris dont la valeur de chaque pixel indique sa hauteur. Grâce à des outils tels que [Tangram Heightmapper](https://tangrams.github.io/heightmapper/#11.58367/48.2643/7.4866), on peut générer des Heightmap à partir de n'importe quel endroit du monde ! J'ai choisi la zone de Sélestat pour mon terrain, car cela me donne un terrain constitué à moitié de la plaine d'alsace, mais aussi d'une moitié des Vosges.
+
+[![Image from Gyazo](https://i.gyazo.com/b626f07f22ee8a8db2b9c3efcd45d082.png)](https://gyazo.com/b626f07f22ee8a8db2b9c3efcd45d082)
+
+Maintenant le plus complexe m'attend. Il faut que je puisse lire les données contenues dans l'image, et que j'arrive à la fois à générer ce terrain graphiquement avec THREE.js et physiquement avec AMMO.js.
+

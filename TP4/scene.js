@@ -566,3 +566,29 @@ function keydown(e) {
                 return false;
         }
 }
+
+function getHeightData(img) {
+        var canvas = document.createElement( 'canvas' );
+        canvas.width = 128;
+        canvas.height = 128;
+        var context = canvas.getContext( '2d' );
+    
+        var size = 128 * 128, data = new Float32Array( size );
+    
+        context.drawImage(img,0,0);
+    
+        for ( var i = 0; i < size; i ++ ) {
+            data[i] = 0
+        }
+    
+        var imgd = context.getImageData(0, 0, 128, 128);
+        var pix = imgd.data;
+    
+        var j=0;
+        for (var i = 0, n = pix.length; i < n; i += (4)) {
+            var all = pix[i]+pix[i+1]+pix[i+2];
+            data[j++] = all/30;
+        }
+    
+        return data;
+    }
