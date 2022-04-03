@@ -183,13 +183,15 @@ Avant de commencer à "remplir" le monde d'objets, j'ai pleins de fonctionnalit�
 
 - Adaptation de la taille de la scène lors du redimensionnement de la fenêtre
 - Écran de chargement
-- Caméra qui suit la voiture (+ option pour la détacher)
+- Caméra qui suit la voiture
 - Overlay (vitesses, aide sur les controles, options ...)
 - Ciel qui se déplace avec la voiture, pour ne jamais le traverser
 
 En plus de ça, j'ai plusieurs autres idée facultativesà ajouter si j'ai le temps :
 
 - Modification des caractéristiques de la voiture
+- Distance de la caméra dynamique
+- Permettre de détacher la caméra
 - Sons
 - Particules derrière le véhicule
 
@@ -208,9 +210,11 @@ function onWindowResize() {
 
 #### __Écran de chargement__
 
+[![Image from Gyazo](https://i.gyazo.com/d26604a3eeace82183169d38678cae31.gif)](https://gyazo.com/d26604a3eeace82183169d38678cae31)
+
 Ce n'est pas très compliqué non plus. Je code l'écran de chargement directement dans le fichier HTML, et je la supprime et la remplace par la scène dès que tout est chargé. J'ai ajouté une petite transition à tout ça :
 
-````js
+```js
 async function start(){
 
         // Initialisation du monde physique
@@ -230,3 +234,24 @@ async function start(){
         
 } 
 ```
+
+#### __Caméra qui suit la voiture__
+
+[![Image from Gyazo](https://i.gyazo.com/f2bf3605e521da520a875fc476f3b239.gif)](https://gyazo.com/f2bf3605e521da520a875fc476f3b239)
+
+J'ai ajouté un nouveau `Object3D` à l'intérieur du mesh du véhicule, avec une position correspondant un décallage voulu de la caméra. Ensuite à chaque image, je déplace la caméra de manière fluide vers l'emplacement de cet Objet. Je modifie aussi la direction vers laquelle regarde la caméra vers le `Mesh` du chassis de la voiture. Malheuresement, il n'y a pas de function permettant de changer cette direction de manière fluide, ce qui peut créer des secousses de la caméra. Cela n'est pas compatible non plus avec OrbitControls.
+
+```js
+function animate() {
+
+        // [...]
+
+        // Mise à jour de la caméra
+        temp.setFromMatrixPosition(cameraTarget.matrixWorld);
+        camera.position.lerp(temp, 0.5);
+        camera.lookAt( chassisMesh.position );
+
+        // [...]
+
+}
+

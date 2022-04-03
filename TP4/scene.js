@@ -21,11 +21,18 @@ const loadingScreen = document.querySelector('#loadingScreen');
 const textureTool = new TextureTool();
 const gltfTool = new GLTFTools();
 
+// Mesh globaux
+let chassisMesh;
+
 // Materiaux globaux
 let wheelMaterial;
 
 // Sol
 let heightData, ammoHeightData;
+
+// Décalage de la caméra
+const temp = new THREE.Vector3;
+let cameraTarget;
 
 // Heightfield parameters
 let terrainWidth;
@@ -136,7 +143,7 @@ async function setupGraphicWorld() {
         camera.lookAt(scene.position);
 
         /* CONTROLES */
-        controls = new OrbitControls( camera, renderer.domElement );
+        //controls = new OrbitControls( camera, renderer.domElement );
 
         /* LUMIERES */
         //Add hemisphere light
@@ -204,8 +211,10 @@ async function setupGraphicWorld() {
 /***  Fonction executée à chaque image : */
 function animate() { 
 
+        requestAnimationFrame(animate);
+
         // Mise à jour des contrôles
-        if (controls) controls.update();
+        //if (controls) controls.update();
 
         // Calcul du temps passsé
         const dt = clock.getDelta()
@@ -217,9 +226,15 @@ function animate() {
         // Mise à jour de la physique
         updatePhysics(dt);
 
-        // Rendu de la scène
+        // Mise à jour de la caméra
+        temp.setFromMatrixPosition(cameraTarget.matrixWorld);
+        camera.position.lerp(temp, 0.5);
+        camera.lookAt( chassisMesh.position );
+
+	// Rendu de la scène
         if (renderer && camera && scene) renderer.render(scene, camera);
-        requestAnimationFrame(animate);
+
+
 }
 
 /*** Fonction de création du sol ***/
@@ -258,8 +273,6 @@ async function createFloor() {
         const groundMotionState = new Ammo.btDefaultMotionState( groundTransform );
 
         const groundBody = new Ammo.btRigidBody( new Ammo.btRigidBodyConstructionInfo( groundMass, groundMotionState, groundShape, groundLocalInertia ) );
-
-        console.log(groundBody)
 
         physicsWorld.addRigidBody( groundBody );
 
@@ -392,8 +405,15 @@ async function createVehicle(pos, quat)  {
         // *** Création du chassis ***
 
         // Création du mesh du chassis du véhicule
-        const chassisMesh = await gltfTool.createGLTFObject('low_poly_car/Low-Poly-Racing-Car_CHASSIS.glb', 2)
+        chassisMesh = await gltfTool.createGLTFObject('low_poly_car/Low-Poly-Racing-Car_CHASSIS.glb', 2)
         scene.add(chassisMesh)
+
+        // Création de la position de la caméra au sein de la voiture
+        cameraTarget = new THREE.Object3D();
+        chassisMesh.add(cameraTarget)
+
+        // Decalage de la cameré
+        cameraTarget.position.set(0, 6, -20);
 
         // Récupération des informations du chassis à partir du mesh chargé
         const chassisSize = new THREE.Vector3();
