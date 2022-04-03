@@ -300,3 +300,9 @@ Avant de passer au dernier Milestone, j'ai rétabli la texture de lune et ajout�
 La seule solution que j'ai trouvé est de définir mon véhicule comme target de la lumière. Ainsi, la caméra de la lumière qui projette les ombres se dirige automatiquement vers la voiture.
 
 [![Image from Gyazo](https://i.gyazo.com/3c9e9b97c6488341b53ff18dc7a520e9.jpg)](https://gyazo.com/3c9e9b97c6488341b53ff18dc7a520e9)
+
+### __5. Ajouter des obstacles :__
+
+Afin de ne pas avoir à concevoir toute la carte manuellement car c'est est très long et c'est plutôt une tâche artistique que technique, j'ai ajouté une fonction qui fait tomber un objet d'une couleur, d'une forme, d'une masse et d'une taille aléatoire, à un endroit aléatoire, toutes les demis secondes.
+
+[![Image from Gyazo](https://i.gyazo.com/3d955b84b9e21a463715200d838a6099.jpg)](https://gyazo.com/3d955b84b9e21a463715200d838a6099)

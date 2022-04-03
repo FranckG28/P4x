@@ -66,9 +66,9 @@ const keysActions = {
 
 // Spawn des objets
 let time = 0;
-const objectTimePeriod = 0.5;
+const objectTimePeriod = 0.2;
 let timeNextSpawn = time + objectTimePeriod;
-const maxNumObjects = 200;
+const maxNumObjects = 500;
 
 /************ Fonction de démarrage *************/
 
@@ -192,10 +192,6 @@ async function setupGraphicWorld() {
         dirLight.shadow.camera.far = Math.max(terrainDepth, terrainWidth)/1.5
 
         dirLight.shadow.bias = -0.00016;
-
-        const helper = new THREE.CameraHelper( dirLight.shadow.camera );
-        scene.add( helper );
-
         
         scene.add( dirLight );
         scene.add( dirLight.target );
