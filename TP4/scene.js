@@ -69,6 +69,7 @@ let time = 0;
 const objectTimePeriod = 0.2;
 let timeNextSpawn = time + objectTimePeriod;
 const maxNumObjects = 500;
+const spawnHeight = 50;
 
 /************ Fonction de démarrage *************/
 
@@ -409,15 +410,15 @@ async function createVehicle(pos, quat)  {
 
         const wheelAxisLength = .3;
 
-        const friction = 1000;
+        const friction = 2000;
         const suspensionStiffness = 20.0;
-        const suspensionDamping = 2.3;
-        const suspensionCompression = 4.4;
-        const suspensionRestLength = 0.6;
+        const suspensionDamping = 2.4;
+        const suspensionCompression = 4.2;
+        const suspensionRestLength = 0.75;
         const rollInfluence = 0.2;
 
-        const steeringIncrement = .04;
-        const steeringClamp = .5;
+        const steeringIncrement = .03;
+        const steeringClamp = .1;
         const maxEngineForce = 2000;
         const maxBreakingForce = 100;
 
@@ -834,9 +835,9 @@ function generateObject() {
                                     break;
                     }
 
-        threeObject.position.set( ( Math.random() - 0.5 ) * terrainWidth * 0.6, terrainMaxHeight + objectSize + 20, ( Math.random() - 0.5 ) * terrainDepth * 0.6 );
+        threeObject.position.set( ( Math.random() - 0.5 ) * terrainWidth * 0.6, terrainMaxHeight + objectSize + spawnHeight, ( Math.random() - 0.5 ) * terrainDepth * 0.6 );
 
-        var mass = objectSize * 8;
+        var mass = objectSize * 8 * (1+Math.random()*10);
         var localInertia = new Ammo.btVector3( 0, 0, 0 );
         shape.calculateLocalInertia( mass, localInertia );
                 var transform = new Ammo.btTransform();

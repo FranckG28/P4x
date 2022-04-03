@@ -306,3 +306,5 @@ La seule solution que j'ai trouvé est de définir mon véhicule comme target de
 Afin de ne pas avoir à concevoir toute la carte manuellement car c'est est très long et c'est plutôt une tâche artistique que technique, j'ai ajouté une fonction qui fait tomber un objet d'une couleur, d'une forme, d'une masse et d'une taille aléatoire, à un endroit aléatoire, toutes les demis secondes.
 
 [![Image from Gyazo](https://i.gyazo.com/3d955b84b9e21a463715200d838a6099.jpg)](https://gyazo.com/3d955b84b9e21a463715200d838a6099)
+
+Certains objets sont tellement lourds qu'ils agissent font office d'obstacle pour la voiture.
