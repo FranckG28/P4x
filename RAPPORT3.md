@@ -254,4 +254,16 @@ function animate() {
         // [...]
 
 }
+```
+
+#### __Ajout d'un Overlay__
+
+[![Image from Gyazo](https://i.gyazo.com/4bc3b671e43bde112b0c2e9c3dc80147.jpg)](https://gyazo.com/4bc3b671e43bde112b0c2e9c3dc80147)
+
+Rien de particulier ici, c'est principalement du HTML et du CSS.
+La vitesse de la voiture est actualisé à chaque mise à jour physique :
+
+```js 
+speedCounter.innerHTML = Math.abs(speed).toFixed(0);
+```
 

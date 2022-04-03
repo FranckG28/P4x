@@ -81,3 +81,55 @@ animation: lds-dual-ring 1.2s linear infinite;
 	opacity: 1;
 	transition: visibility 0s linear 0s, opacity 300ms;
   }
+
+.speedCounter {
+	display: flex;
+	justify-content: center;
+	position: absolute;
+	top: 20px;
+	z-index: 5;
+	color: white;
+	flex-direction: column;
+	row-gap: 0;
+}
+
+p {
+	margin: 0;
+	padding: 0;
+	text-align: center;
+	user-select: none;
+	color: white;
+	text-shadow: 0 -1px 4px #FFF, 0 -2px 10px #ff0, 0 -10px 20px #ff8000, 0 -18px 40px #F00;
+}
+
+#speedCounter {
+	font-size: 4rem;
+	font-weight: 600;
+	line-height: 3rem;
+}
+
+#speedCounterIndicator {
+	font-size: small;
+	font-weight: 200;
+}
+
+#instructions {
+	position: absolute;
+	z-index: 5;
+	font-size: small;
+	left: 10px;
+	bottom: 10px;
+}
+
+#credits {
+	position: absolute;
+	z-index: 5;
+	font-size: small;
+	right: 10px;
+	bottom: 10px;
+
+}
+
+a, a:hover, a:focus, a:active {
+	color: white
+}

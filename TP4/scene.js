@@ -13,9 +13,10 @@ import TextureTool from './textureTool.js';
 // Instances globales
 let physicsWorld, scene, camera, renderer, clock, controls, tmpTrans;
 
-// Conteneurs
+// Elements du DOM
 const container = document.querySelector('#threejsContainer');
 const loadingScreen = document.querySelector('#loadingScreen');
+const speedCounter = document.querySelector("#speedCounter")
 
 // Loaders
 const textureTool = new TextureTool();
@@ -472,8 +473,6 @@ async function createVehicle(pos, quat)  {
         async function addWheel(isFront, pos, index) {
 
                 // Création du Mesh associé à cette roue
-                //wheelMeshes[index] = createWheelMesh(radius, width);
-
                 let path;
                 if (index == 0 || index == 3) {
                         path = 'low_poly_car/Low-Poly-Racing-Car_WHEEL_LEFT.glb'
@@ -529,7 +528,7 @@ async function createVehicle(pos, quat)  {
                 // Obtention de la vitesse de la voiture
                 const speed = vehicle.getCurrentSpeedKmHour();
 
-                // speedometer.innerHTML = (speed < 0 ? '(R) ' : '') + Math.abs(speed).toFixed(1) + ' km/h';
+                speedCounter.innerHTML = Math.abs(speed).toFixed(0);
 
                 breakingForce = 0;
                 engineForce = 0;
