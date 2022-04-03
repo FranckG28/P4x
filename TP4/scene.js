@@ -278,7 +278,7 @@ function animate() {
 async function createFloor() {
 
         // Création du mesh du terrain
-        createTerrainGrapics()
+        await createTerrainGrapics()
 
         // Création de la forme au format ammo
         const groundShape = await createTerrainShape( heightData );
