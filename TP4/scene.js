@@ -20,6 +20,18 @@ const gltfTool = new GLTFTools();
 // Materiaux globaux
 let wheelMaterial;
 
+// Sol
+let heightData, ammoHeightData;
+// Heightfield parameters
+const terrainWidthExtents = 100;
+const terrainDepthExtents = 100;
+const terrainWidth = 128;
+const terrainDepth = 128;
+const terrainHalfWidth = terrainWidth / 2;
+const terrainHalfDepth = terrainDepth / 2;
+const terrainMaxHeight = 8;
+const terrainMinHeight = -2;
+
 // Liste des corps à mettre à jour
 let rigidBodies = [];
 
@@ -204,45 +216,60 @@ function animate() {
 /*** Fonction de création du sol ***/
 async function createFloor() {
     
-        let pos = {x: 0, y: 0, z: 0};
-        let scale = {x: 50, y: 2, z: 50};
-        let quat = {x: 0, y: 0, z: 0, w: 1};
-        let mass = 0;
+        // Création de l'image
+        const image = new Image();
+        image.src = 'selestat.png'
 
-        //threeJS Section
-        const moonTexture = await textureTool.loadTexture('moon.png');
-        moonTexture.repeat.x = 10;
-        moonTexture.repeat.y = 10;
+        // Lorsque l'image est chargée
+        image.onload = ((ev) => {
+                
+                // Generer la heightmap
+                heightData = getHeightData(image);
+
+                console.log(heightData)
+
+        })
         
-        let geo = new THREE.BoxBufferGeometry();
-        let mat = new THREE.MeshPhongMaterial();
-        mat.map = moonTexture;
-        mat.side = THREE.DoubleSide;
-        let floor = new THREE.Mesh(geo, mat);
-        floor.position.set(pos.x, pos.y, pos.z);
-        floor.scale.set(scale.x, scale.y, scale.z);
-        floor.castShadow = true;
-        floor.receiveShadow = true;
-        scene.add(floor)
 
-        //Ammojs Section
-        let transform = new Ammo.btTransform();
-        transform.setIdentity();
-        transform.setOrigin( new Ammo.btVector3( pos.x, pos.y, pos.z ) );
-        transform.setRotation( new Ammo.btQuaternion( quat.x, quat.y, quat.z, quat.w ) );
-        let motionState = new Ammo.btDefaultMotionState( transform );
+        // let pos = {x: 0, y: 0, z: 0};
+        // let scale = {x: 50, y: 2, z: 50};
+        // let quat = {x: 0, y: 0, z: 0, w: 1};
+        // let mass = 0;
 
-        let colShape = new Ammo.btBoxShape( new Ammo.btVector3( scale.x * 0.5, scale.y * 0.5, scale.z * 0.5 ) );
-        colShape.setMargin( 0.05 );
+        // //threeJS Section
+        // const moonTexture = await textureTool.loadTexture('moon.png');
+        // moonTexture.repeat.x = 10;
+        // moonTexture.repeat.y = 10;
+        
+        // let geo = new THREE.BoxBufferGeometry();
+        // let mat = new THREE.MeshPhongMaterial();
+        // mat.map = moonTexture;
+        // mat.side = THREE.DoubleSide;
+        // let floor = new THREE.Mesh(geo, mat);
+        // floor.position.set(pos.x, pos.y, pos.z);
+        // floor.scale.set(scale.x, scale.y, scale.z);
+        // floor.castShadow = true;
+        // floor.receiveShadow = true;
+        // scene.add(floor)
 
-        let localInertia = new Ammo.btVector3( 0, 0, 0 );
-        colShape.calculateLocalInertia( mass, localInertia );
+        // //Ammojs Section
+        // let transform = new Ammo.btTransform();
+        // transform.setIdentity();
+        // transform.setOrigin( new Ammo.btVector3( pos.x, pos.y, pos.z ) );
+        // transform.setRotation( new Ammo.btQuaternion( quat.x, quat.y, quat.z, quat.w ) );
+        // let motionState = new Ammo.btDefaultMotionState( transform );
 
-        let rbInfo = new Ammo.btRigidBodyConstructionInfo( mass, motionState, colShape, localInertia );
-        let body = new Ammo.btRigidBody( rbInfo );
+        // let colShape = new Ammo.btBoxShape( new Ammo.btVector3( scale.x * 0.5, scale.y * 0.5, scale.z * 0.5 ) );
+        // colShape.setMargin( 0.05 );
+
+        // let localInertia = new Ammo.btVector3( 0, 0, 0 );
+        // colShape.calculateLocalInertia( mass, localInertia );
+
+        // let rbInfo = new Ammo.btRigidBodyConstructionInfo( mass, motionState, colShape, localInertia );
+        // let body = new Ammo.btRigidBody( rbInfo );
 
 
-        physicsWorld.addRigidBody( body );
+        // physicsWorld.addRigidBody( body );
 }
 
     
@@ -567,13 +594,14 @@ function keydown(e) {
         }
 }
 
+// Fonction de génération du terrain
 function getHeightData(img) {
-        var canvas = document.createElement( 'canvas' );
+        const canvas = document.createElement( 'canvas' );
         canvas.width = 128;
         canvas.height = 128;
-        var context = canvas.getContext( '2d' );
+        const context = canvas.getContext( '2d' );
     
-        var size = 128 * 128, data = new Float32Array( size );
+        const size = 128 * 128, data = new Float32Array( size );
     
         context.drawImage(img,0,0);
     
@@ -581,14 +609,77 @@ function getHeightData(img) {
             data[i] = 0
         }
     
-        var imgd = context.getImageData(0, 0, 128, 128);
-        var pix = imgd.data;
+        const imgd = context.getImageData(0, 0, 128, 128);
+        const pix = imgd.data;
     
-        var j=0;
-        for (var i = 0, n = pix.length; i < n; i += (4)) {
-            var all = pix[i]+pix[i+1]+pix[i+2];
+        let j=0;
+        for (let i = 0, n = pix.length; i < n; i += (4)) {
+            let all = pix[i]+pix[i+1]+pix[i+2];
             data[j++] = all/30;
         }
     
         return data;
     }
+
+
+// Fonction de génération du corp physique du sol
+function createTerrainShape() {
+
+        // This parameter is not really used, since we are using PHY_FLOAT height data type and hence it is ignored
+        const heightScale = 1;
+
+        // Up axis = 0 for X, 1 for Y, 2 for Z. Normally 1 = Y is used.
+        const upAxis = 1;
+
+        // hdt, height data type. "PHY_FLOAT" is used. Possible values are "PHY_FLOAT", "PHY_UCHAR", "PHY_SHORT"
+        const hdt = "PHY_FLOAT";
+
+        // Set this to your needs (inverts the triangles)
+        const flipQuadEdges = false;
+
+        // Creates height data buffer in Ammo heap
+        ammoHeightData = Ammo._malloc( 4 * terrainWidth * terrainDepth );
+
+        // Copy the javascript height data array to the Ammo one.
+        let p = 0;
+        let p2 = 0;
+        for ( let j = 0; j < terrainDepth; j ++ ) {
+                for ( let i = 0; i < terrainWidth; i ++ ) {
+
+                        // write 32-bit float data to memory
+                        Ammo.HEAPF32[ammoHeightData + p2 >> 2] = heightData[ p ];
+
+                        p ++;
+
+                        // 4 bytes/float
+                        p2 += 4;
+                }
+        }
+
+        // Creates the heightfield physics shape
+        const heightFieldShape = new Ammo.btHeightfieldTerrainShape(
+
+                terrainWidth,
+                terrainDepth,
+
+                ammoHeightData,
+
+                heightScale,
+                terrainMinHeight,
+                terrainMaxHeight,
+
+                upAxis,
+                hdt,
+                flipQuadEdges
+        );
+
+        // Set horizontal scale
+        const scaleX = terrainWidthExtents / ( terrainWidth - 1 );
+        const scaleZ = terrainDepthExtents / ( terrainDepth - 1 );
+        heightFieldShape.setLocalScaling( new Ammo.btVector3( scaleX, 1, scaleZ ) );
+
+        heightFieldShape.setMargin( 0.05 );
+
+        return heightFieldShape;
+
+}
