@@ -183,8 +183,8 @@ Avant de commencer à "remplir" le monde d'objets, j'ai pleins de fonctionnalit�
 
 - Adaptation de la taille de la scène lors du redimensionnement de la fenêtre
 - Écran de chargement
-- Overlay (vitesses, aide sur les controles, options ...)
 - Caméra qui suit la voiture (+ option pour la détacher)
+- Overlay (vitesses, aide sur les controles, options ...)
 - Ciel qui se déplace avec la voiture, pour ne jamais le traverser
 
 En plus de ça, j'ai plusieurs autres idée facultativesà ajouter si j'ai le temps :
@@ -204,4 +204,29 @@ function onWindowResize() {
         camera.updateProjectionMatrix();
         renderer.setSize( window.innerWidth, window.innerHeight );
 }
+```
+
+#### __Écran de chargement__
+
+Ce n'est pas très compliqué non plus. Je code l'écran de chargement directement dans le fichier HTML, et je la supprime et la remplace par la scène dès que tout est chargé. J'ai ajouté une petite transition à tout ça :
+
+````js
+async function start(){
+
+        // Initialisation du monde physique
+        setupPhysicsWorld();
+
+        //[...]
+
+        // Affichage de la première image
+        animate();
+
+        // Fermeture de l'écran du chargement
+        container.appendChild(renderer.domElement)
+        loadingScreen.classList.add("m-fadeOut")
+        loadingScreen.classList.remove("m-fadeIn")
+        setTimeout(() => loadingScreen.remove(), 300);
+        
+        
+} 
 ```

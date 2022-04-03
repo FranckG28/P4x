@@ -13,6 +13,10 @@ import TextureTool from './textureTool.js';
 // Instances globales
 let physicsWorld, scene, camera, renderer, clock, controls, tmpTrans;
 
+// Conteneurs
+const container = document.querySelector('#threejsContainer');
+const loadingScreen = document.querySelector('#loadingScreen');
+
 // Loaders
 const textureTool = new TextureTool();
 const gltfTool = new GLTFTools();
@@ -77,6 +81,13 @@ async function start(){
 
         // Affichage de la première image
         animate();
+
+        // Fermeture de l'écran du chargement
+        container.appendChild(renderer.domElement)
+        loadingScreen.classList.add("m-fadeOut")
+        loadingScreen.classList.remove("m-fadeIn")
+        setTimeout(() => loadingScreen.remove(), 300);
+        
         
 }            
 
@@ -102,8 +113,6 @@ async function setupGraphicWorld() {
         const fov = 50;
         const lightColor = 0xffffff;
 
-        var container = document.querySelector('#threejsContainer');
-
         /* Chargement des classes */
         const objTool = new OBJTool();
         const textureLoader = new THREE.TextureLoader();
@@ -114,7 +123,6 @@ async function setupGraphicWorld() {
         renderer.shadowMap.type = THREE.PCFSoftShadowMap; 
         renderer.outputEncoding = THREE.sRGBEncoding;
         renderer.setSize(window.innerWidth, window.innerHeight);
-        container.appendChild(renderer.domElement);
 
         /* CLOCK */
         clock = new THREE.Clock();
