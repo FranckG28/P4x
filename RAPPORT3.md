@@ -256,6 +256,23 @@ function animate() {
 }
 ```
 
+J'ai longement tenté de conserver OrbitControls en mettant à jour la position de l'objet derrière la voiture selon le mouvement d'orbit control, mais sans succès :
+
+```js
+function controlsEnd(ev) {
+        
+        isMoving = false;
+
+        let pos = new THREE.Vector3().setFromSphericalCoords( controls.getDistance(), controls.getPolarAngle(),controls.getAzimuthalAngle());
+
+        cameraTarget.position.copy(pos);
+
+}
+```
+
+J'ai du finir par abandonner cette idée ... Néanmoins, j'ai conservé OrbitControls et désactivé le suivi de caméra pendant qu'on effectue un mouvement. Cela permet quand même de pouvoir déplacer la caméra de manière temporaire.
+
+
 #### __Ajout d'un Overlay__
 
 [![Image from Gyazo](https://i.gyazo.com/4bc3b671e43bde112b0c2e9c3dc80147.jpg)](https://gyazo.com/4bc3b671e43bde112b0c2e9c3dc80147)
@@ -266,4 +283,6 @@ La vitesse de la voiture est actualisé à chaque mise à jour physique :
 ```js 
 speedCounter.innerHTML = Math.abs(speed).toFixed(0);
 ```
+
+#### __Ciel qui se déplace avec la voiture__
 
