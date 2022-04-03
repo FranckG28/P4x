@@ -11,8 +11,9 @@ _Franck GUTMANN OS1_
 1. Intégration du moteur physique
 2. Création du véhicule
 3. Modeler le terrain 
-4. Ajouter des obstacles
-5. Caméra qui suit la voiture
+4. Gameplay
+5. Ajouter des obstacles
+
 
 
 ### __0. Démarrage__
@@ -137,6 +138,8 @@ J'ai à la place créé un nouveau modèle 3D de la roue gauche. La voiture est 
 
 ### __3. Modeler le terrain :__
 
+[![Image from Gyazo](https://i.gyazo.com/7f1f23d0f2932aeca17ce06abf308958.gif)](https://gyazo.com/7f1f23d0f2932aeca17ce06abf308958)
+
 Je m'attaque maintenant à une tâche tout aussi lourde : modeler un terrain. Après quelques recherches, je trouve des moyens de générer un terrain à partir de fonctions simples tels que la fonction sinus. Mais j'ai découvert quelque chose de bien plus intéressant : les heightmaps. Ce sont des images en niveau de gris dont la valeur de chaque pixel indique sa hauteur. Grâce à des outils tels que [Tangram Heightmapper](https://tangrams.github.io/heightmapper/#11.58367/48.2643/7.4866), on peut générer des Heightmap à partir de n'importe quel endroit du monde ! J'ai choisi la zone de Sélestat pour mon terrain, car cela me donne un terrain constitué à moitié de la plaine d'alsace, mais aussi d'une moitié des Vosges.
 
 [![Image from Gyazo](https://i.gyazo.com/b626f07f22ee8a8db2b9c3efcd45d082.png)](https://gyazo.com/b626f07f22ee8a8db2b9c3efcd45d082)
@@ -171,3 +174,6 @@ function getFloorData() {
         
 }
 ```
+
+A l'aide des exemples officiels, en apportant de grandes modifications afin que tout corresponde à mon Heightmap, j'ai réussi à charger ma Heightmap dans le monde graphique et physique.
+
