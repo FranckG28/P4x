@@ -13,6 +13,8 @@ import TextureTool from './textureTool.js';
 // Instances globales
 let physicsWorld, scene, camera, renderer, clock, controls, tmpTrans;
 
+let isMoving = false;
+
 // Elements du DOM
 const container = document.querySelector('#threejsContainer');
 const loadingScreen = document.querySelector('#loadingScreen');
@@ -144,7 +146,9 @@ async function setupGraphicWorld() {
         camera.lookAt(scene.position);
 
         /* CONTROLES */
-        //controls = new OrbitControls( camera, renderer.domElement );
+        controls = new OrbitControls( camera, renderer.domElement );
+        controls.addEventListener('start', () => isMoving = true)
+        controls.addEventListener('end', () => isMoving = false)
 
         /* LUMIERES */
         //Add hemisphere light
@@ -214,8 +218,7 @@ function animate() {
 
         requestAnimationFrame(animate);
 
-        // Mise à jour des contrôles
-        //if (controls) controls.update();
+        
 
         // Calcul du temps passsé
         const dt = clock.getDelta()
@@ -227,10 +230,19 @@ function animate() {
         // Mise à jour de la physique
         updatePhysics(dt);
 
-        // Mise à jour de la caméra
-        temp.setFromMatrixPosition(cameraTarget.matrixWorld);
-        camera.position.lerp(temp, 0.5);
-        camera.lookAt( chassisMesh.position );
+        // Mise à jour des contrôles
+        if (controls) {
+                controls.target = chassisMesh.position;
+                controls.update();
+
+                // Mise à jour de la caméra
+                if (!isMoving) {
+                        temp.setFromMatrixPosition(cameraTarget.matrixWorld);
+                        camera.position.lerp(temp, 0.1);
+                }
+        }
+
+        
 
 	// Rendu de la scène
         if (renderer && camera && scene) renderer.render(scene, camera);
