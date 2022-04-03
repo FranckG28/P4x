@@ -143,3 +143,31 @@ Je m'attaque maintenant à une tâche tout aussi lourde : modeler un terrain. Ap
 
 Maintenant le plus complexe m'attend. Il faut que je puisse lire les données contenues dans l'image, et que j'arrive à la fois à générer ce terrain graphiquement avec THREE.js et physiquement avec AMMO.js.
 
+J'ai dû prêter attention à l'ordre d'execution des choses. En effet, il faut attendre que l'image soit chargée avant de pouvoir récupérer ses données. J'ai pour cela encore utilisé les Promise :
+
+```js
+/*** Fonction de génération des données du sol */
+function getFloorData() {
+
+        const myPromise = function(resolve, reject) {
+        
+                // Création de l'image
+                const image = new Image();
+                image.src = 'selestat.png'
+
+                // Lorsque l'image est chargée
+                image.onload = (ev) => {
+                        
+                        // Generer la heightmap
+                        resolve(generateHeightData(image));
+
+                }
+
+                image.onerror = (ev) => reject(ev)
+
+        }
+
+        return new Promise(myPromise)
+        
+}
+```

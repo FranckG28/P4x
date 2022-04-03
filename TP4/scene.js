@@ -215,61 +215,37 @@ function animate() {
 
 /*** Fonction de création du sol ***/
 async function createFloor() {
-    
-        // Création de l'image
-        const image = new Image();
-        image.src = 'selestat.png'
 
-        // Lorsque l'image est chargée
-        image.onload = ((ev) => {
-                
-                // Generer la heightmap
-                heightData = getHeightData(image);
+        heightData = await getFloorData();
 
-                console.log(heightData)
-
-        })
         
 
-        // let pos = {x: 0, y: 0, z: 0};
-        // let scale = {x: 50, y: 2, z: 50};
-        // let quat = {x: 0, y: 0, z: 0, w: 1};
-        // let mass = 0;
+}
 
-        // //threeJS Section
-        // const moonTexture = await textureTool.loadTexture('moon.png');
-        // moonTexture.repeat.x = 10;
-        // moonTexture.repeat.y = 10;
+
+/*** Fonction de génération des données du sol */
+function getFloorData() {
+
+        const myPromise = function(resolve, reject) {
         
-        // let geo = new THREE.BoxBufferGeometry();
-        // let mat = new THREE.MeshPhongMaterial();
-        // mat.map = moonTexture;
-        // mat.side = THREE.DoubleSide;
-        // let floor = new THREE.Mesh(geo, mat);
-        // floor.position.set(pos.x, pos.y, pos.z);
-        // floor.scale.set(scale.x, scale.y, scale.z);
-        // floor.castShadow = true;
-        // floor.receiveShadow = true;
-        // scene.add(floor)
+                // Création de l'image
+                const image = new Image();
+                image.src = 'selestat.png'
 
-        // //Ammojs Section
-        // let transform = new Ammo.btTransform();
-        // transform.setIdentity();
-        // transform.setOrigin( new Ammo.btVector3( pos.x, pos.y, pos.z ) );
-        // transform.setRotation( new Ammo.btQuaternion( quat.x, quat.y, quat.z, quat.w ) );
-        // let motionState = new Ammo.btDefaultMotionState( transform );
+                // Lorsque l'image est chargée
+                image.onload = (ev) => {
+                        
+                        // Generer la heightmap
+                        resolve(generateHeightData(image));
 
-        // let colShape = new Ammo.btBoxShape( new Ammo.btVector3( scale.x * 0.5, scale.y * 0.5, scale.z * 0.5 ) );
-        // colShape.setMargin( 0.05 );
+                }
 
-        // let localInertia = new Ammo.btVector3( 0, 0, 0 );
-        // colShape.calculateLocalInertia( mass, localInertia );
+                image.onerror = (ev) => reject(ev)
 
-        // let rbInfo = new Ammo.btRigidBodyConstructionInfo( mass, motionState, colShape, localInertia );
-        // let body = new Ammo.btRigidBody( rbInfo );
+        }
 
-
-        // physicsWorld.addRigidBody( body );
+        return new Promise(myPromise)
+        
 }
 
     
@@ -595,7 +571,7 @@ function keydown(e) {
 }
 
 // Fonction de génération du terrain
-function getHeightData(img) {
+function generateHeightData(img) {
         const canvas = document.createElement( 'canvas' );
         canvas.width = 128;
         canvas.height = 128;
