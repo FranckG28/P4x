@@ -16,11 +16,11 @@ J'ai choisi de créer un véhicule fonctionnel, ainsi qu'un terrain dans lequel 
 4. Gameplay
 5. Ajouter des obstacles
 
-### __0. Démarrage__
+## __0. Démarrage__
 
 Afin de commencer sur des bonnes basses, j'ai supprimé tous les éléments de la scène. J'ai ensuite réorganisé mon code en supprimant tout sauf la lumière, le sol et le ciel. J'ai également appris les `Promise` javascript en créant une classe `OBJTools`.
 
-### __1. Intégration du moteur physique__
+## __1. Intégration du moteur physique__
 
 [![Image from Gyazo](https://i.gyazo.com/094c573da617120ec6c2d59254d185b5.gif)](https://gyazo.com/094c573da617120ec6c2d59254d185b5)
 
@@ -52,7 +52,7 @@ function setupPhysicsWorld(){
 ```
 
 
-#### Fonctionnement du moteur physique :
+### Fonctionnement du moteur physique :
 
 Un moteur physique comme `Bullet Physics Engine` gère la simulation dans son propre monde __physique__, totalement indépendant de celui __graphique__ que l'on à créé jusque là avec Three.JS. 
 
@@ -85,7 +85,7 @@ function updatePhysics( deltaTime ){
 }
 ```
 
-### __2. Création d'un véhicule__
+## __2. Création d'un véhicule__
 
 [![Image from Gyazo](https://i.gyazo.com/46a3147319f92ad6b82f974d760a5867.gif)](https://gyazo.com/46a3147319f92ad6b82f974d760a5867)
 
@@ -138,7 +138,7 @@ J'ai à la place créé un nouveau modèle 3D de la roue gauche. La voiture est 
 
 <img src="https://i.gyazo.com/8d57ea1320fad43c6875d2eef9035911.gif" width=400 />
 
-### __3. Modeler le terrain :__
+## __3. Modeler le terrain :__
 
 [![Image from Gyazo](https://i.gyazo.com/7f1f23d0f2932aeca17ce06abf308958.gif)](https://gyazo.com/7f1f23d0f2932aeca17ce06abf308958)
 
@@ -180,7 +180,7 @@ function getFloorData() {
 
 A l'aide des exemples officiels, en apportant de grandes modifications afin que tout corresponde à mon _Heightmap_ plutôt qu'à des paramètres prédéfinis, j'ai réussi à charger ma _Heightmap_ dans le monde graphique et physique.
 
-### __4. Gameplay__
+## __4. Gameplay__
 
 Avant de commencer à "remplir" le monde d'objets, j'ai pleins de fonctionnalités à apporter afin de rendre le "jeu" bien plus agréable et intéressant à utiliser :
 
@@ -309,7 +309,7 @@ La seule solution que j'ai trouvé est de définir mon véhicule comme target de
 <img src="https://i.gyazo.com/3c9e9b97c6488341b53ff18dc7a520e9.jpg" width=400 />
 
 
-### __5. Ajouter des obstacles :__
+## __5. Ajouter des obstacles :__
 
 Afin de ne pas avoir à concevoir toute la carte manuellement car c'est très long et c'est plutôt un travail artistique que technique, j'ai ajouté une fonction qui fait tomber un objet d'une couleur, d'une forme, d'une masse et d'une taille aléatoire, à un emplacement aléatoire, toutes les demis secondes.
 
