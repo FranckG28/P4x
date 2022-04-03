@@ -43,7 +43,14 @@ export default class GLTFTools {
     
                     // Positionnement
                     object.position.set(0,0,0)
-    
+
+                    // Ombres
+                    object.traverse( function( node ) {
+
+                        if ( node.isMesh ) { node.castShadow = true; }
+
+                    } );
+                    
                     resolve(object);
     
                 },

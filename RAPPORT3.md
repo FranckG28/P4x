@@ -185,9 +185,9 @@ Avant de commencer à "remplir" le monde d'objets, j'ai pleins de fonctionnalit�
 - Écran de chargement
 - Caméra qui suit la voiture
 - Overlay (vitesses, aide sur les controles, options ...)
-- Ciel qui se déplace avec la voiture, pour ne jamais le traverser
+- Déplacer le ciel avec la voiture, pour ne jamais le traverser
 
-En plus de ça, j'ai plusieurs autres idée facultativesà ajouter si j'ai le temps :
+En plus de ça, j'ai plusieurs autres idées facultatives à ajouter si j'ai le temps :
 
 - Modification des caractéristiques de la voiture
 - Distance de la caméra dynamique
@@ -284,5 +284,15 @@ La vitesse de la voiture est actualisé à chaque mise à jour physique :
 speedCounter.innerHTML = Math.abs(speed).toFixed(0);
 ```
 
-#### __Ciel qui se déplace avec la voiture__
+#### __Déplacer le ciel avec la voiture__
 
+Encore une fois un changement simple, il suffit de mettre à jour la position du ciel dans la fonction `animate()` :
+
+```js
+// Déplacement du ciel au centre de la voiture
+skydome.position.copy(chassisMesh.position)
+```
+
+#### __Retablissement des textures et des ombres__
+
+Avant de passer au dernier Milestone, j'ai rétabli la texture de lune et ajouté des ombres au véhicule. Malheuresement, la shadowMap est trop petite et on en sort très rapidement. J'ai tout essayé pour modifier sa taille pour qu'elle corresponde au terrain, ou essayer qu'elle se déplace avec le véhicule, mais rien n'y fait et je n'ai trouvé aucune informtion pour régler ça.

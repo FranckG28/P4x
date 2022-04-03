@@ -26,6 +26,9 @@ const gltfTool = new GLTFTools();
 
 // Mesh globaux
 let chassisMesh;
+let skydome
+
+let dirLight
 
 // Materiaux globaux
 let wheelMaterial;
@@ -68,6 +71,9 @@ Ammo().then( start )
 
 
 async function start(){
+
+        // Récupération de la Heightmap du sol
+        heightData = await getFloorData();
 
         // Initialisation du monde physique
         setupPhysicsWorld();
@@ -159,11 +165,10 @@ async function setupGraphicWorld() {
         scene.add( hemiLight );
 
         //Add directional light
-        let dirLight = new THREE.DirectionalLight( lightColor , 1);
+        dirLight = new THREE.DirectionalLight( lightColor , 1);
         dirLight.color.setHSL( 0.1, 1, 0.95 );
         dirLight.position.set( -1, 1.75, 1 );
         dirLight.position.multiplyScalar( 100 );
-        scene.add( dirLight );
 
         dirLight.castShadow = true;
 
@@ -178,7 +183,17 @@ async function setupGraphicWorld() {
         dirLight.shadow.camera.top = d;
         dirLight.shadow.camera.bottom = -d;
 
+        dirLight.shadow.camera.far = Math.max(terrainDepth, terrainWidth)/1.5
+
         dirLight.shadow.bias = -0.00016;
+
+        const helper = new THREE.CameraHelper( dirLight.shadow.camera );
+        scene.add( helper );
+
+        
+        scene.add( dirLight );
+        scene.add( dirLight.target );
+
 
         // Initialisation des materiaux
         wheelMaterial = new THREE.MeshNormalMaterial()
@@ -203,11 +218,11 @@ async function setupGraphicWorld() {
 
         /* CIEL */
         const skyTexture = await textureTool.loadTexture('sky.jpg');
-        var geometry = new THREE.SphereGeometry(500, 60, 40);
-        var material = new THREE.MeshBasicMaterial();
+        const geometry = new THREE.SphereGeometry(500, 60, 40);
+        const material = new THREE.MeshBasicMaterial();
         material.map = skyTexture;
         material.side = THREE.BackSide;
-        var skydome = new THREE.Mesh(geometry, material);
+        skydome = new THREE.Mesh(geometry, material);
 
         scene.add(skydome);
 
@@ -217,8 +232,6 @@ async function setupGraphicWorld() {
 function animate() { 
 
         requestAnimationFrame(animate);
-
-        
 
         // Calcul du temps passsé
         const dt = clock.getDelta()
@@ -242,36 +255,22 @@ function animate() {
                 }
         }
 
-        
+        // Déplacement du ciel au centre de la voiture
+        skydome.position.copy(chassisMesh.position)
+
+        // Déplacement des ombres
+
 
 	// Rendu de la scène
         if (renderer && camera && scene) renderer.render(scene, camera);
-
 
 }
 
 /*** Fonction de création du sol ***/
 async function createFloor() {
 
-        // Récupération de la Heightmap du sol
-        heightData = await getFloorData();
-
         // Création du mesh du terrain
         createTerrainGrapics()
-
-        // Calcul de la hauteur minimale et maximale
-        terrainMaxHeight = 0
-        terrainMinHeight = Number.MAX_VALUE
-        for (let i = 0; i<terrainWidth*terrainDepth; i++) {
-                let value = heightData[i];
-                if (value > terrainMaxHeight) {
-                        terrainMaxHeight = value
-                }
-                if (value < terrainMinHeight) {
-                        terrainMinHeight = value
-                }
-        }
-
 
         // Création de la forme au format ammo
         const groundShape = await createTerrainShape( heightData );
@@ -398,8 +397,8 @@ async function createVehicle(pos, quat)  {
         const wheelAxisPositionBack = -1.635;
         const wheelAxisFrontPosition = .84;
 
-        const wheelAxisHeightBack = .2;
-        const wheelAxisHeightFront = .08;
+        const wheelAxisHeightBack = .19;
+        const wheelAxisHeightFront = .07;
 
         const wheelAxisLength = .3;
 
@@ -419,14 +418,17 @@ async function createVehicle(pos, quat)  {
 
         // Création du mesh du chassis du véhicule
         chassisMesh = await gltfTool.createGLTFObject('low_poly_car/Low-Poly-Racing-Car_CHASSIS.glb', 2)
+        chassisMesh.castShadow = true;
         scene.add(chassisMesh)
 
         // Création de la position de la caméra au sein de la voiture
         cameraTarget = new THREE.Object3D();
         chassisMesh.add(cameraTarget)
 
-        // Decalage de la cameré
+        // Decalage de la camera
         cameraTarget.position.set(0, 6, -20);
+
+        dirLight.target = cameraTarget
 
         // Récupération des informations du chassis à partir du mesh chargé
         const chassisSize = new THREE.Vector3();
@@ -660,12 +662,25 @@ function generateHeightData(img) {
             let all = pix[i]+pix[i+1]+pix[i+2];
             data[j++] = all/30;
         }
+
+        // Calcul de la hauteur minimale et maximale
+        terrainMaxHeight = 0
+        terrainMinHeight = Number.MAX_VALUE
+        for (let i = 0; i<terrainWidth*terrainDepth; i++) {
+                let value = data[i];
+                if (value > terrainMaxHeight) {
+                        terrainMaxHeight = value
+                }
+                if (value < terrainMinHeight) {
+                        terrainMinHeight = value
+                }
+        }
     
         return data;
     }
 
 
-function createTerrainGrapics() {
+async function createTerrainGrapics() {
         const geometry = new THREE.PlaneBufferGeometry( terrainWidth, terrainDepth, terrainWidth - 1, terrainDepth - 1 );
         geometry.rotateX( - Math.PI / 2 );
 
@@ -681,7 +696,15 @@ function createTerrainGrapics() {
         geometry.computeVertexNormals();
 
         const groundMaterial = new THREE.MeshPhongMaterial( { color: 0xC7C7C7 } );
+
+        const texture = await textureTool.loadTexture('moon.png');
+        texture.repeat = new THREE.Vector2(50,50)
+        groundMaterial.map = texture;
+
         const terrainMesh = new THREE.Mesh( geometry, groundMaterial );
+        
+        terrainMesh.receiveShadow = true;
+        
         scene.add( terrainMesh );
 }
 
