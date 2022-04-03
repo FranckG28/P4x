@@ -10,9 +10,10 @@ _Franck GUTMANN OS1_
 
 1. Intégration du moteur physique
 2. Création du véhicule
-3. Ajouter des obstacles
-4. Caméra qui suit la voiture
-5. Modeler un beau terrain 
+3. Modeler un beau terrain 
+4. Ajouter des obstacles
+5. Caméra qui suit la voiture
+
 
 ### __0. Démarrage__
 
@@ -85,7 +86,7 @@ function updatePhysics( deltaTime ){
 
 ### __2. Création d'un véhicule__
 
-[INSERER IMAGE ETAPE]
+[![Image from Gyazo](https://i.gyazo.com/46a3147319f92ad6b82f974d760a5867.gif)](https://gyazo.com/46a3147319f92ad6b82f974d760a5867)
 
 Après avoir fait tomber une boule sur le terrain, il est maintenant temps de passer à la création de la voiture.
 
@@ -132,3 +133,6 @@ if (i==0 || i== 3) {
 
 J'ai à la place créé un nouveau modèle 3D de la roue gauche. La voiture est enfin terminée !
 
+[![Image from Gyazo](https://i.gyazo.com/8d57ea1320fad43c6875d2eef9035911.gif)](https://gyazo.com/8d57ea1320fad43c6875d2eef9035911)
+
+### __3. Modeler un beau terrain :__

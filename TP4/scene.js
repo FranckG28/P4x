@@ -6,6 +6,7 @@ import { OrbitControls } from '../three.js-master/examples/jsm/controls/OrbitCon
 
 import OBJTool from './objTools.js';
 import GLTFTools from './gltfTools.js';
+import TextureTool from './textureTool.js';
 
 /************** VARIABLES *****************/
 
@@ -13,7 +14,7 @@ import GLTFTools from './gltfTools.js';
 let physicsWorld, scene, camera, renderer, clock, controls, tmpTrans;
 
 // Loaders
-const textureLoader = new THREE.TextureLoader();
+const textureTool = new TextureTool();
 const gltfTool = new GLTFTools();
 
 // Materiaux globaux
@@ -40,22 +41,22 @@ const keysActions = {
 Ammo().then( start )
 
 
-function start(){
+async function start(){
 
         // Initialisation du monde physique
         setupPhysicsWorld();
 
         // Initialisation du monde graphique
-        setupGraphicWorld();
+        await setupGraphicWorld();
 
         // Création du sol
-        createFloor();
+        await createFloor();
 
         // Création de la balle
         createBall();
 
         // Création de la voiture
-        createVehicle(new THREE.Vector3(0, 3, 10), new THREE.Quaternion(0, .42, 0, 1))
+        await createVehicle(new THREE.Vector3(0, 3, 10), new THREE.Quaternion(0, .42, 0, 1))
 
         // Association des évènements :
         window.addEventListener( 'keydown', keydown);
@@ -84,7 +85,7 @@ function setupPhysicsWorld(){
 
 
 /*** SCENE THREE JS */
-function setupGraphicWorld() {
+async function setupGraphicWorld() {
         const fov = 50;
         const lightColor = 0xffffff;
 
@@ -168,31 +169,15 @@ function setupGraphicWorld() {
 
 
         /* CIEL */
-        textureLoader.load(
-                // resource URL
-                'sky.jpg',
+        const skyTexture = await textureTool.loadTexture('sky.jpg');
+        var geometry = new THREE.SphereGeometry(500, 60, 40);
+        var material = new THREE.MeshBasicMaterial();
+        material.map = skyTexture;
+        material.side = THREE.BackSide;
+        var skydome = new THREE.Mesh(geometry, material);
 
-                // onLoad callback
-                function ( texture ) {
+        scene.add(skydome);
 
-                        var geometry = new THREE.SphereGeometry(500, 60, 40);
-                        var material = new THREE.MeshBasicMaterial();
-                        material.map = texture;
-                        material.side = THREE.BackSide;
-                        var skydome = new THREE.Mesh(geometry, material);
-
-                        scene.add(skydome);
-                        
-                },
-
-                // onProgress callback currently not supported
-                undefined,
-
-                // onError callback
-                function ( err ) {
-                        console.error( 'An error happened.' );
-                }
-        );
 }
 
 /***  Fonction executée à chaque image : */
@@ -217,7 +202,7 @@ function animate() {
 }
 
 /*** Fonction de création du sol ***/
-function createFloor(){
+async function createFloor() {
     
         let pos = {x: 0, y: 0, z: 0};
         let scale = {x: 50, y: 2, z: 50};
@@ -225,36 +210,20 @@ function createFloor(){
         let mass = 0;
 
         //threeJS Section
-        textureLoader.load(
-                // resource URL
-                'moon.png',
-
-                // onLoad callback
-                function ( texture ) {
-                        texture.wrapS = THREE.RepeatWrapping;
-                        texture.wrapT = THREE.RepeatWrapping;
-                        texture.repeat.x = 10;
-                        texture.repeat.y = 10;
-                        let geo = new THREE.BoxBufferGeometry();
-                        let mat = new THREE.MeshPhongMaterial();
-                        mat.map = texture;
-                        mat.side = THREE.DoubleSide;
-                        let floor = new THREE.Mesh(geo, mat);
-                        floor.position.set(pos.x, pos.y, pos.z);
-                        floor.scale.set(scale.x, scale.y, scale.z);
-                        floor.castShadow = true;
-                        floor.receiveShadow = true;
-                        scene.add(floor)
-                },
-
-                // onProgress callback currently not supported
-                undefined,
-
-                // onError callback
-                function ( err ) {
-                        console.error( 'An error happened.' );
-                }
-        );
+        const moonTexture = await textureTool.loadTexture('moon.png');
+        moonTexture.repeat.x = 10;
+        moonTexture.repeat.y = 10;
+        
+        let geo = new THREE.BoxBufferGeometry();
+        let mat = new THREE.MeshPhongMaterial();
+        mat.map = moonTexture;
+        mat.side = THREE.DoubleSide;
+        let floor = new THREE.Mesh(geo, mat);
+        floor.position.set(pos.x, pos.y, pos.z);
+        floor.scale.set(scale.x, scale.y, scale.z);
+        floor.castShadow = true;
+        floor.receiveShadow = true;
+        scene.add(floor)
 
         //Ammojs Section
         let transform = new Ammo.btTransform();
