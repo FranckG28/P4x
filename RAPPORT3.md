@@ -295,4 +295,8 @@ skydome.position.copy(chassisMesh.position)
 
 #### __Retablissement des textures et des ombres__
 
-Avant de passer au dernier Milestone, j'ai rétabli la texture de lune et ajouté des ombres au véhicule. Malheuresement, la shadowMap est trop petite et on en sort très rapidement. J'ai tout essayé pour modifier sa taille pour qu'elle corresponde au terrain, ou essayer qu'elle se déplace avec le véhicule, mais rien n'y fait et je n'ai trouvé aucune informtion pour régler ça.
+Avant de passer au dernier Milestone, j'ai rétabli la texture de lune et ajouté des ombres au véhicule. Malheuresement, la shadowMap est trop petite et on en sort très rapidement. 
+
+La seule solution que j'ai trouvé est de définir mon véhicule comme target de la lumière. Ainsi, la caméra de la lumière qui projette les ombres se dirige automatiquement vers la voiture.
+
+[![Image from Gyazo](https://i.gyazo.com/3c9e9b97c6488341b53ff18dc7a520e9.jpg)](https://gyazo.com/3c9e9b97c6488341b53ff18dc7a520e9)
