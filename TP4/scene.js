@@ -22,15 +22,15 @@ let wheelMaterial;
 
 // Sol
 let heightData, ammoHeightData;
+
 // Heightfield parameters
-const terrainWidthExtents = 100;
-const terrainDepthExtents = 100;
-const terrainWidth = 128;
-const terrainDepth = 128;
-const terrainHalfWidth = terrainWidth / 2;
-const terrainHalfDepth = terrainDepth / 2;
-const terrainMaxHeight = 8;
-const terrainMinHeight = -2;
+let terrainWidth;
+let terrainDepth;
+
+const terrainScale = 2;
+
+let terrainMaxHeight;
+let terrainMinHeight;
 
 // Liste des corps à mettre à jour
 let rigidBodies = [];
@@ -68,7 +68,7 @@ async function start(){
         createBall();
 
         // Création de la voiture
-        await createVehicle(new THREE.Vector3(0, 3, 10), new THREE.Quaternion(0, .42, 0, 1))
+        await createVehicle(new THREE.Vector3(0, terrainMaxHeight, 10), new THREE.Quaternion(0, .42, 0, 1))
 
         // Association des évènements :
         window.addEventListener( 'keydown', keydown);
@@ -216,9 +216,43 @@ function animate() {
 /*** Fonction de création du sol ***/
 async function createFloor() {
 
+        // Récupération de la Heightmap du sol
         heightData = await getFloorData();
 
-        
+        // Création du mesh du terrain
+        createTerrainGrapics()
+
+        // Calcul de la hauteur minimale et maximale
+        terrainMaxHeight = 0
+        terrainMinHeight = Number.MAX_VALUE
+        for (let i = 0; i<terrainWidth*terrainDepth; i++) {
+                let value = heightData[i];
+                if (value > terrainMaxHeight) {
+                        terrainMaxHeight = value
+                }
+                if (value < terrainMinHeight) {
+                        terrainMinHeight = value
+                }
+        }
+
+
+        // Création de la forme au format ammo
+        const groundShape = await createTerrainShape( heightData );
+
+        const groundTransform = new Ammo.btTransform();
+        groundTransform.setIdentity();
+        // Shifts the terrain, since bullet re-centers it on its bounding box.
+        groundTransform.setOrigin( new Ammo.btVector3( 0, ( terrainMaxHeight + terrainMinHeight ) / 2, 0 ) );
+
+        const groundMass = 0;
+        const groundLocalInertia = new Ammo.btVector3( 0, 0, 0 );
+        const groundMotionState = new Ammo.btDefaultMotionState( groundTransform );
+
+        const groundBody = new Ammo.btRigidBody( new Ammo.btRigidBodyConstructionInfo( groundMass, groundMotionState, groundShape, groundLocalInertia ) );
+
+        console.log(groundBody)
+
+        physicsWorld.addRigidBody( groundBody );
 
 }
 
@@ -234,6 +268,9 @@ function getFloorData() {
 
                 // Lorsque l'image est chargée
                 image.onload = (ev) => {
+
+                        terrainWidth = image.naturalWidth/terrainScale
+                        terrainDepth = image.naturalHeight/terrainScale
                         
                         // Generer la heightmap
                         resolve(generateHeightData(image));
@@ -539,16 +576,6 @@ async function createVehicle(pos, quat)  {
         syncList.push(sync);
 }
 
-// // Fonction de création du Mesh correspondant à une roue
-// function createWheelMesh(radius, width) {
-//         const geometry = new THREE.CylinderGeometry(radius, radius, width, 24, 1);
-//         geometry.rotateZ(Math.PI / 2);
-//         const mesh = new THREE.Mesh(geometry, wheelMaterial);
-//         mesh.add(new THREE.Mesh(new THREE.BoxGeometry(width * 1.5, radius * 1.75, radius*.25, 1, 1, 1), wheelMaterial));
-//         mesh.castShadow = true;
-//         scene.add(mesh);
-//         return mesh;
-// }
 
 // Evenement touche relachée
 function keyup(e) {
@@ -573,11 +600,11 @@ function keydown(e) {
 // Fonction de génération du terrain
 function generateHeightData(img) {
         const canvas = document.createElement( 'canvas' );
-        canvas.width = 128;
-        canvas.height = 128;
+        canvas.width = terrainWidth;
+        canvas.height = terrainDepth;
         const context = canvas.getContext( '2d' );
     
-        const size = 128 * 128, data = new Float32Array( size );
+        const size = terrainWidth * terrainDepth, data = new Float32Array( size );
     
         context.drawImage(img,0,0);
     
@@ -585,7 +612,7 @@ function generateHeightData(img) {
             data[i] = 0
         }
     
-        const imgd = context.getImageData(0, 0, 128, 128);
+        const imgd = context.getImageData(0, 0, terrainWidth, terrainDepth);
         const pix = imgd.data;
     
         let j=0;
@@ -596,6 +623,27 @@ function generateHeightData(img) {
     
         return data;
     }
+
+
+function createTerrainGrapics() {
+        const geometry = new THREE.PlaneBufferGeometry( terrainWidth, terrainDepth, terrainWidth - 1, terrainDepth - 1 );
+        geometry.rotateX( - Math.PI / 2 );
+
+        const vertices = geometry.attributes.position.array;
+
+        for ( var i = 0, j = 0, l = vertices.length; i < l; i ++, j += 3 ) {
+
+                // j + 1 because it is the y component that we modify
+                vertices[ j + 1 ] = heightData[ i ];
+
+        }
+
+        geometry.computeVertexNormals();
+
+        const groundMaterial = new THREE.MeshPhongMaterial( { color: 0xC7C7C7 } );
+        const terrainMesh = new THREE.Mesh( geometry, groundMaterial );
+        scene.add( terrainMesh );
+}
 
 
 // Fonction de génération du corp physique du sol
@@ -650,8 +698,8 @@ function createTerrainShape() {
         );
 
         // Set horizontal scale
-        const scaleX = terrainWidthExtents / ( terrainWidth - 1 );
-        const scaleZ = terrainDepthExtents / ( terrainDepth - 1 );
+        const scaleX = terrainWidth / ( terrainWidth - 1 );
+        const scaleZ = terrainDepth / ( terrainDepth - 1 );
         heightFieldShape.setLocalScaling( new Ammo.btVector3( scaleX, 1, scaleZ ) );
 
         heightFieldShape.setMargin( 0.05 );
