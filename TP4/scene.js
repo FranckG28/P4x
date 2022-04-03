@@ -73,6 +73,7 @@ async function start(){
         // Association des évènements :
         window.addEventListener( 'keydown', keydown);
         window.addEventListener( 'keyup', keyup);
+        window.addEventListener( 'resize', onWindowResize, false );
 
         // Affichage de la première image
         animate();
@@ -705,5 +706,15 @@ function createTerrainShape() {
         heightFieldShape.setMargin( 0.05 );
 
         return heightFieldShape;
+
+}
+
+// Fonction de redimensionnement de la scène
+function onWindowResize() {
+
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+
+        renderer.setSize( window.innerWidth, window.innerHeight );
 
 }

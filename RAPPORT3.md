@@ -181,8 +181,8 @@ A l'aide des exemples officiels, en apportant de grandes modifications afin que 
 
 Avant de commencer à "remplir" le monde d'objets, j'ai pleins de fonctionnalités à apporter afin de rendre le "jeu" bien plus agréable et intéressant à utiliser :
 
-- Écran de chargement
 - Adaptation de la taille de la scène lors du redimensionnement de la fenêtre
+- Écran de chargement
 - Overlay (vitesses, aide sur les controles, options ...)
 - Caméra qui suit la voiture (+ option pour la détacher)
 - Ciel qui se déplace avec la voiture, pour ne jamais le traverser
@@ -192,3 +192,16 @@ En plus de ça, j'ai plusieurs autres idée facultativesà ajouter si j'ai le te
 - Modification des caractéristiques de la voiture
 - Sons
 - Particules derrière le véhicule
+
+
+#### __Adaptation de la taille de la scène lors du redimensionnement de la fenêtre :__
+
+C'est la modification la plus simple, il suffit de 3 lignes pour modifier la taille du rendu et la projection de la caméra, et d'associer cet fonction à l'évènement `resize` :
+
+```js
+function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize( window.innerWidth, window.innerHeight );
+}
+```
