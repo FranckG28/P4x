@@ -4,7 +4,9 @@ _Franck GUTMANN OS1_
 
 ## Description du projet 
 
-...
+[![Image from Gyazo](https://i.gyazo.com/22482babe5ab58582ccef170ffd4de28.gif)](https://gyazo.com/22482babe5ab58582ccef170ffd4de28)
+
+J'ai choisi de créer un véhicule fonctionnel, ainsi qu'un terrain dans lequel il évolue avec des obstacles.
 
 ## Milestones : 
 
@@ -14,8 +16,6 @@ _Franck GUTMANN OS1_
 4. Gameplay
 5. Ajouter des obstacles
 
-
-
 ### __0. Démarrage__
 
 Afin de commencer sur des bonnes basses, j'ai supprimé tous les éléments de la scène. J'ai ensuite réorganisé mon code en supprimant tout sauf la lumière, le sol et le ciel. J'ai également appris les `Promise` javascript en créant une classe `OBJTools`.
@@ -24,13 +24,13 @@ Afin de commencer sur des bonnes basses, j'ai supprimé tous les éléments de l
 
 [![Image from Gyazo](https://i.gyazo.com/094c573da617120ec6c2d59254d185b5.gif)](https://gyazo.com/094c573da617120ec6c2d59254d185b5)
 
-#### Choix du moteur :
+#### __Choix du moteur :__
 
 J'ai commencé par devoir choisir un moteur physique. J'ai d'abord voulu utiliser [CANNON.JS](https://schteppe.github.io/cannon.js/). Ce dernier à été conçu spécialement pour le web, et est particulièrement adapté a Three.JS. Malheuresement, il n'est plus développé depuis 2016, et Three.JS à énormément évolué depuis. De plus, la documentation étant très faible, il faut énormément se baser sur des éxemples, qui ne fonctionnent plus aujourd'hui.
 
 J'ai donc décider d'utiliser [ammo.js](https://github.com/kripken/ammo.js/), qui est un simple portage en JavaScript d'un moteur de physique C++ nommé [Bullet](http://bulletphysics.org/).
 
-#### Implémentation du moteur physique :
+#### __Implémentation du moteur physique :__
 
 J'ai réorganiser le code, afin de d'abord initialiser le moteur physique, et dès qu'il est prêt, initialiser Three.JS comme auparavant.
 
@@ -52,7 +52,7 @@ function setupPhysicsWorld(){
 ```
 
 
-#### Fonctionnement du moteur physique :
+#### __Fonctionnement du moteur physique :__
 
 Un moteur physique comme `Bullet Physics Engine` gère la simulation dans son propre monde __physique__, totalement indépendant de celui __graphique__ que l'on à créé jusque là avec Three.JS. 
 

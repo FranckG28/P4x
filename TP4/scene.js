@@ -668,7 +668,7 @@ function generateHeightData(img) {
         let j=0;
         for (let i = 0, n = pix.length; i < n; i += (4)) {
             let all = pix[i]+pix[i+1]+pix[i+2];
-            data[j++] = all/20;
+            data[j++] = all/15;
         }
 
         // Calcul de la hauteur minimale et maximale
